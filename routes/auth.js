@@ -1,31 +1,42 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config');
+const bcrypt = require('bcrypt');
+const { Op } = require('sequelize');
+const User = require('./modelUser');
+const { secret } = require('../config');
 
-const { secret } = config;
-
-/** @module auth */
 module.exports = (app, nextMain) => {
-  /**
-   * @name /auth
-   * @description Crea token de autenticación.
-   * @path {POST} /auth
-   * @body {String} email Correo
-   * @body {String} password Contraseña
-   * @response {Object} resp
-   * @response {String} resp.token Token a usar para los requests sucesivos
-   * @code {200} si la autenticación es correcta
-   * @code {400} si no se proveen `email` o `password` o ninguno de los dos
-   * @auth No requiere autenticación
-   */
-  app.post('/auth', (req, resp, next) => {
+  app.post('/auth', async (req, res, next) => {
+    console.log('Received login request');
     const { email, password } = req.body;
 
     if (!email || !password) {
       return next(400);
     }
 
-    // TODO: autenticar a la usuarix
-    next();
+    try {
+      const user = await User.findOne({
+        where: {
+          email: {
+            [Op.eq]: email,
+          },
+        },
+      });
+
+      if (!user) {
+        return next(401);
+      }
+
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return next(401);
+      }
+
+      const token = jwt.sign({ email: user.email, role: user.role }, secret, { expiresIn: '1h' });
+      res.json({ token });
+    } catch (error) {
+      console.error('Erro ao autenticar usuário:', error);
+      next(500);
+    }
   });
 
   return nextMain();
