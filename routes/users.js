@@ -115,6 +115,29 @@ module.exports = (app, next) => {
    * @code {403} si ya existe usuaria con ese `email`
    */
   app.post('/users', requireAdmin, (req, resp, next) => {
+    // Importar o modelo do usuário (caso esteja usando um ORM como o Sequelize)
+const { User } = require('./models');
+
+app.post('/users', requireAdmin, async (req, resp, next) => {
+  try {
+    // Aqui, você deve implementar a lógica para criar um novo usuário no banco de dados.
+    // Primeiro, você pode obter os dados do corpo da solicitação (o JSON enviado pelo cliente).
+    const { email, password, role } = req.body;
+
+    // Verifique se todos os campos necessários estão presentes no corpo da solicitação.
+    if (!email || !password || !role) {
+      return resp.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+    }
+
+    const newUser = await User.create({ email, password, role });
+
+    // Se a criação do usuário foi bem-sucedida, você pode enviar uma resposta de sucesso.
+    return resp.status(201).json(newUser);
+  } catch (error) {
+    return next(error);
+  }
+});
+
   });
 
   /**
