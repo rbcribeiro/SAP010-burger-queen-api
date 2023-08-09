@@ -66,7 +66,29 @@ module.exports = (app, next) => {
     }
   });
 
-  app.put('/users/:uid', requireAuth, (req, resp, next) => {
+  app.put('/users/:uid', requireAuth, async (req, res) => {
+    try {
+      const uid = req.params.uid;
+      const { email, password, role } = req.body;
+  
+      const user = await User.findOne({ where: { id: uid } });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'Usuário não encontrado' });
+      }
+  
+      // Atualiza os campos apenas se estiverem presentes no corpo da requisição
+      user.email = email || user.email;
+      user.password = password || user.password;
+      user.role = role || user.role;
+  
+      await user.save(); // Salva as mudanças no banco de dados
+  
+      res.status(200).json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
+    }
   });
 
   app.delete('/users/:uid', requireAuth, (req, resp, next) => {
