@@ -23,7 +23,7 @@ const initAdminUser = (app, next) => {
     roles: { admin: true },
   };
 
-  // TODO: crear usuaria admin
+ 
   next();
 };
 
@@ -34,7 +34,7 @@ module.exports = (app, next) => {
   app.get('/users', requireAdmin, getUsers);
 
 
-  app.get('/users/:uid', requireAuth, async (req, res) => {
+  app.get('/users/:uid', requireAdmin, async (req, res) => {
     try {
       //pega o parametro da URL requisição
       const uid = req.params.uid;
@@ -53,13 +53,14 @@ module.exports = (app, next) => {
   });
 
   app.post('/users', requireAdmin, async (req, resp, next) => {
+    console.log("console aqui")
     try {
       const { email, password, role } = req.body;
       if (!email || !password || !role) {
         return resp.status(400).json({ message: 'Todos os campos são obrigatórios.' });
       }
 
-      const newUser = await User.create({ email, password, role });
+      const newUser = await User.create({ email, password: bcrypt.hashSync(password, 10), role });
       return resp.status(201).json(newUser);
     } catch (error) {
       return next(error);
@@ -89,9 +90,10 @@ module.exports = (app, next) => {
       console.error(error);
       res.status(500).json({ message: 'Erro interno do servidor' });
     }
+
   });
 
-  app.delete('/users/:uid', requireAuth, (req, resp, next) => {
+  app.delete('/users/:uid', requireAdmin, (req, resp, next) => {
   });
 
   initAdminUser(app, next);
