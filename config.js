@@ -7,10 +7,11 @@ const dbConfig = {
   port: process.env.DB_PORT,
   database: process.env.DB_NAME,
   dialect: process.env.DB_DIALECT,
-};
+  adminEmail: process.env.DB_ADMIN_EMAIL,
+  adminPassword: process.env.DB_ADMIN_PASSWORD,
+}
 
-const secret = process.env.JWT_SECRET;
-
+const secret =process.env.JWT_SECRET;
 const port = process.env.PORT || 8080;
 
 

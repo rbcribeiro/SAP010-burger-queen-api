@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
-const User = require('../models/modelUser');
+const { User } = require('../models');
 const { secret } = require('../config');
 
 module.exports = (app, nextMain) => {
@@ -21,7 +21,7 @@ module.exports = (app, nextMain) => {
           },
         },
       });
-
+      console.log(user)
       if (!user) {
         return next(401);
       }
