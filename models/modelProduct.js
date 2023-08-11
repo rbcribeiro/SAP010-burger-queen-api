@@ -2,22 +2,28 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   const Product = sequelize.define('Product', {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     price: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL(10, 2), // 10 dígitos inteiros, 2 dígitos decimais
       allowNull: false,
     },
-    // Outras colunas do modelo Product, se necessário...
+    image: {
+      type: DataTypes.STRING,
+    },
+    type: {
+      type: DataTypes.STRING,
+    },
   });
 
-  // Configurar associações entre modelos, se aplicável
-  Product.associate = (models) => {
-    // Por exemplo, se um produto pertence a um usuário:
-    Product.belongsTo(models.User, { foreignKey: 'userId' });
-  };
 
   return Product;
 };
