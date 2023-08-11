@@ -11,12 +11,12 @@ const dbConfig = {
   adminPassword: process.env.DB_ADMIN_PASSWORD,
 }
 
-const secret =process.env.JWT_SECRET;
+const secrets =process.env.JWT_SECRETS;
 const port = process.env.PORT || 8080;
 
 
 module.exports = {
   dbConfig,
-  secret,
+  secrets,
   port,
 };

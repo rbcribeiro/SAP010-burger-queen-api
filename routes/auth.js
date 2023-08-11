@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { User } = require('../models');
-const { secret } = require('../config');
+const { secrets } = require('../config');
 
 module.exports = (app, nextMain) => {
   app.post('/auth', async (req, res, next) => {
@@ -31,7 +31,7 @@ module.exports = (app, nextMain) => {
         return next(401);
       }
 
-      const token = jwt.sign({ email: user.email, role: user.role }, secret, { expiresIn: '1h' });
+      const token = jwt.sign({ email: user.email, role: user.role }, secrets, { expiresIn: '1h' });
       res.json({ token });
     } catch (error) {
       console.error('Erro ao autenticar usuário:', error);

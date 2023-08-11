@@ -1,64 +1,63 @@
+// middleware/auth.js
 const jwt = require('jsonwebtoken');
-const { secret } = require('../config');
 
-module.exports = (secret) => (req, resp, next) => {
+module.exports = (secrets) => (req, resp, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
+    console.log('Authorization header missing');
     return next();
   }
 
   const [type, token] = authorization.split(' ');
 
   if (type.toLowerCase() !== 'bearer') {
+    console.log('Invalid authorization type');
     return next();
   }
 
-  jwt.verify(token, secret, (err, decodedToken) => {
+  jwt.verify(token, secrets, (err, decodedToken) => {
     if (err) {
+      console.log('Token verification failed:', err);
       return resp.status(403).send('Acesso proibido');
     }
 
-    // TODO: Verificar identidad del usuario usando `decodeToken.uid`
+    console.log('Token verified:', decodedToken);
+    req.user = decodedToken;
+    next();
   });
 };
 
+
+
+
+// Verifica se o usuário está autenticado
 module.exports.isAuthenticated = (req) => {
-  const { authorization } = req.headers;
-
-  if (!authorization) {
-    return false; // Usuário não forneceu token de autenticação
-  }
-
-  const [type, token] = authorization.split(' ');
-
-  if (type.toLowerCase() !== 'bearer') {
-    return false; // Tipo de autenticação inválido
-  }
-
-  try {
-    jwt.verify(token, secret); // Verificar se o token é válido
-    return true; // O token é válido, o usuário está autenticado
-  } catch (error) {
-    return false; // O token é inválido ou expirou
-  }
+  const user = req.user;
+  return user !== undefined;
 };
 
+// Verifica se o usuário possui a role "admin"
+module.exports.isAdmin = (req) => {
+  const user = req.user;
+  return user && user.role && user.role === 'admin';
+};
 
-module.exports.isAdmin = (req) => (
-  req.user && req.user.role && req.user.role.admin
-);
+// Requer autenticação para acessar rotas protegidas
+module.exports.requireAuth = (req, resp, next) => {
+  if (!module.exports.isAuthenticated(req)) {
+    return resp.status(401).send('Autenticação necessária');
+  }
+  next();
+};
 
-module.exports.requireAuth = (req, resp, next) => (
-  (!module.exports.isAuthenticated(req))
-    ? resp.status(401).send('Autenticação necessária')
-    : next()
-);
-
-module.exports.requireAdmin = (req, resp, next) => (
-  (!module.exports.isAuthenticated(req))
-    ? resp.status(401).send('Autenticação necessária')
-    : (!module.exports.isAdmin(req))
-      ? resp.status(403).send('Acesso proibido')
-      : next()
-);
+// Requer autenticação e que o usuário seja admin para acessar rotas protegidas pelo admin
+module.exports.requireAdmin = (req, resp, next) => {
+  if (!module.exports.isAuthenticated(req)) {
+    return resp.status(401).send('Autenticação necessária');
+  }
+  if (!module.exports.isAdmin(req)) {
+    return resp.status(403).send('Acesso proibido');
+  }
+  next();
+};
