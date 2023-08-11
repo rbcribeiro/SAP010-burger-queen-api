@@ -1,23 +1,24 @@
-// Arquivo: seeders/20230807123456-create-user.js (o nome do arquivo pode variar)
-'use strict';
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // Número de saltos (rounds) de criptografia
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    // Dados do usuário a serem inseridos no banco de dados
+  up: async (queryInterface) => {
+    const plaintextPassword = 'admin'; // Senha em texto plano
+    const hashedPassword = bcrypt.hashSync(plaintextPassword, saltRounds);
+    
     const userData = {
-      email: 'chef@chef.com',
-      password: 'chef',
-      role: 'chef',
+      email: 'admin@api.com',
+      password: hashedPassword, // Salve o hash da senha no banco de dados
+      role: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-
-    // Insira o usuário na tabela "Users"
+    
     await queryInterface.bulkInsert('Users', [userData]);
   },
 
-  down: async (queryInterface, Sequelize) => {
-    // Remova o usuário inserido (se necessário)
-    await queryInterface.bulkDelete('Users', { email: 'chef@chef.com' }, {});
+  down: async (queryInterface) => {
+
+    await queryInterface.bulkDelete('Users', { email: 'admin@api.com' }, {});
   }
 };

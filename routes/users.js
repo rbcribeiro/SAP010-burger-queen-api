@@ -1,14 +1,6 @@
 const bcrypt = require('bcrypt');
-
-const {
-  requireAuth,
-  requireAdmin,
-} = require('../middleware/auth');
-
-const {
-  getUsers,
-} = require('../controller/users');
-
+const { requireAuth, requireAdmin, isAdmin } = require('../middleware/auth');
+const { getUsers } = require('../controller/users');
 const { User } = require('../models');
 
 const initAdminUser = (app, next) => {
@@ -20,31 +12,30 @@ const initAdminUser = (app, next) => {
   const adminUser = {
     email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),
-    roles: { admin: true },
+    role: 'admin',
   };
 
- 
+  // Create the admin user if not exists
+  User.findOrCreate({
+    where: { email: adminUser.email },
+    defaults: adminUser,
+  });
+
   next();
 };
 
-
-/** @module users */
 module.exports = (app, next) => {
-
   app.get('/users', requireAdmin, getUsers);
 
-
-  app.get('/users/:uid', requireAdmin, async (req, res) => {
+  app.get('/users/:uid', requireAuth, async (req, res) => {
     try {
-      //pega o parametro da URL requisição
       const uid = req.params.uid;
-      //busca no banco de dados pelo parametro
       const user = await User.findOne({ where: { id: uid } });
-  
+
       if (!user) {
         return res.status(404).json({ message: 'Usuário não encontrado' });
       }
-  
+
       res.status(200).json(user);
     } catch (error) {
       console.error(error);
@@ -53,7 +44,6 @@ module.exports = (app, next) => {
   });
 
   app.post('/users', requireAdmin, async (req, resp, next) => {
-    console.log("console aqui")
     try {
       const { email, password, role } = req.body;
       if (!email || !password || !role) {
@@ -68,32 +58,54 @@ module.exports = (app, next) => {
   });
 
   app.put('/users/:uid', requireAuth, async (req, res) => {
+    const uid = req.params.uid;
+    
+    // Check if the authenticated user is the same as the user being updated
+    if (!isAdmin(req) && req.user.id !== parseInt(uid)) {
+      return res.status(403).json({ message: 'Acesso proibido' });
+    }
+
+    // Rest of the update logic
     try {
-      const uid = req.params.uid;
       const { email, password, role } = req.body;
-  
+
       const user = await User.findOne({ where: { id: uid } });
-  
+
       if (!user) {
         return res.status(404).json({ message: 'Usuário não encontrado' });
       }
-  
-      // Atualiza os campos apenas se estiverem presentes no corpo da requisição
+
       user.email = email || user.email;
-      user.password = password || user.password;
+      if (password) {
+        user.password = bcrypt.hashSync(password, 10);
+      }
       user.role = role || user.role;
-  
-      await user.save(); // Salva as mudanças no banco de dados
-  
+
+      await user.save();
+
       res.status(200).json(user);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Erro interno do servidor' });
     }
-
   });
 
-  app.delete('/users/:uid', requireAdmin, (req, resp, next) => {
+  app.delete('/users/:uid', requireAuth, async (req, res) => {
+    try {
+      const uid = req.params.uid;
+      const user = await User.findOne({ where: { id: uid } });
+
+      if (!user) {
+        return res.status(404).json({ message: 'Usuário não encontrado' });
+      }
+
+      await user.destroy();
+
+      res.status(204).send();
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
+    }
   });
 
   initAdminUser(app, next);
