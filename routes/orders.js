@@ -44,6 +44,26 @@ module.exports = (app, nextMain) => {
         return resp.status(404).json({ message: `Usuário com ID ${userId} não encontrado.` });
       }
   
+      const order = await Order.create({
+        userId,
+        client,
+        status: 'Pendente',
+        dateEntry: new Date(),
+      });
+  
+      // Percorre os produtos enviados no corpo da requisição e cria as associações
+      for (const productData of products) {
+        const { qty, product } = productData;
+        const existingProduct = await Product.findByPk(product.id);
+  
+        if (!existingProduct) {
+          return resp.status(404).json({ message: `Produto com ID ${product.id} não encontrado.` });
+        }
+  
+        await order.addProduct(existingProduct, { through: { quantity: qty } });
+      }
+  
+      return resp.status(201).json(order);
     } catch (error) {
       console.error(error);
       return resp.status(500).json({ message: 'Erro interno do servidor' });
@@ -52,7 +72,7 @@ module.exports = (app, nextMain) => {
   
   
 
-  app.patch('/orders/:orderId', requireAuth, async (req, res, next) => {
+  app.put('/orders/:orderId', requireAuth, async (req, res, next) => {
     try {
       const orderId = req.params.orderId;
       const { status } = req.body;

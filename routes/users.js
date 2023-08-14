@@ -57,13 +57,15 @@ module.exports = (app, next) => {
     }
   });
 
-  app.patch('/users/:uid', requireAuth, async (req, res) => {
+  app.put('/users/:uid', requireAuth, async (req, res) => {
     const uid = req.params.uid;
     
+    // Check if the authenticated user is the same as the user being updated
     if (!isAdmin(req) && req.user.id !== parseInt(uid)) {
       return res.status(403).json({ message: 'Acesso proibido' });
     }
 
+    // Rest of the update logic
     try {
       const { email, password, role } = req.body;
 

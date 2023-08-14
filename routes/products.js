@@ -41,7 +41,7 @@ module.exports = (app, nextMain) => {
     }
   });
 
-  app.patch('/products/:productId', requireAdmin, async (req, res, next) => {
+  app.put('/products/:productId', requireAdmin, async (req, res, next) => {
     const uid = req.params.productId;
     
     if (!isAdmin(req) && req.product.id !== parseInt(uid)) {
