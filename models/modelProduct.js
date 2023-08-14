@@ -13,7 +13,7 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
     price: {
-      type: DataTypes.DECIMAL(10, 2), // 10 dígitos inteiros, 2 dígitos decimais
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
     image: {
@@ -24,6 +24,12 @@ module.exports = (sequelize) => {
     },
   });
 
+  Product.associate = (models) => {
+    Product.belongsToMany(models.Order, {
+      through: models.OrderProducts,
+      foreignKey: 'productId',
+    });
+  };
 
   return Product;
 };
