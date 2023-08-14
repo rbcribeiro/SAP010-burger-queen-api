@@ -57,15 +57,13 @@ module.exports = (app, next) => {
     }
   });
 
-  app.put('/users/:uid', requireAuth, async (req, res) => {
+  app.patch('/users/:uid', requireAuth, async (req, res) => {
     const uid = req.params.uid;
     
-    // Check if the authenticated user is the same as the user being updated
     if (!isAdmin(req) && req.user.id !== parseInt(uid)) {
       return res.status(403).json({ message: 'Acesso proibido' });
     }
 
-    // Rest of the update logic
     try {
       const { email, password, role } = req.body;
 
@@ -101,7 +99,8 @@ module.exports = (app, next) => {
 
       await user.destroy();
 
-      res.status(204).send();
+
+      resp.status(200).json({ message: 'Usuário excluído com sucesso!' });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Erro interno do servidor' });
