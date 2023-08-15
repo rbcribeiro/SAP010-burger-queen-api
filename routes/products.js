@@ -6,12 +6,10 @@ const {
 const { getProducts } = require('../controller/products');
 const { Product } = require('../models');
 
-/** @module products */
 module.exports = (app, nextMain) => {
- 
   app.get('/products', requireAdmin, getProducts);
 
-  app.get('/products/:productId', requireAuth, async (req, res, next) => {
+  app.get('/products/:productId', requireAuth, async (req, res) => {
     try {
       const uid = req.params.productId;
       const product = await Product.findOne({ where: { id: uid } });
@@ -29,27 +27,42 @@ module.exports = (app, nextMain) => {
 
   app.post('/products', requireAdmin, async (req, resp, next) => {
     try {
-      const { name, price, image, type } = req.body;
+      const {
+        name,
+        price,
+        image,
+        type,
+      } = req.body;
       if (!name || !price || !image || !type) {
         return resp.status(400).json({ message: 'Todos os campos são obrigatórios.' });
       }
 
-      const newProduct = await Product.create({ name, price, image, type });
+      const newProduct = await Product.create({
+        name,
+        price,
+        image,
+        type,
+      });
       return resp.status(201).json(newProduct);
     } catch (error) {
       return next(error);
     }
   });
 
-  app.put('/products/:productId', requireAdmin, async (req, res, next) => {
+  app.put('/products/:productId', requireAdmin, async (req, res) => {
     const uid = req.params.productId;
-    
-    if (!isAdmin(req) && req.product.id !== parseInt(uid)) {
+
+    if (!isAdmin(req) && req.product.id !== parseInt(uid, 10)) {
       return res.status(403).json({ message: 'Acesso proibido' });
     }
 
     try {
-      const { name, price, image, type } = req.body;
+      const {
+        name,
+        price,
+        image,
+        type,
+      } = req.body;
 
       const product = await Product.findOne({ where: { id: uid } });
 
@@ -71,7 +84,7 @@ module.exports = (app, nextMain) => {
     }
   });
 
-  app.delete('/products/:productId', requireAdmin, async (req, resp, next) => {
+  app.delete('/products/:productId', requireAdmin, async (req, resp) => {
     try {
       const uid = req.params.productId;
       const product = await Product.findOne({ where: { id: uid } });

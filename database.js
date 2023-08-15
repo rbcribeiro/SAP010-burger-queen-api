@@ -9,12 +9,12 @@ const sequelize = new Sequelize(
     host: config.dbConfig.host,
     port: config.dbConfig.port,
     dialect: config.dbConfig.dialect,
-  }
+  },
 );
 
 sequelize
   .authenticate()
-  .then(() => console.log('Conexão com o banco de dados bem-sucedida!'))
-  .catch(err => console.error('Erro ao conectar com o banco de dados:', err));
+  .then(() => console.info('Conexão com o banco de dados bem-sucedida!'))
+  .catch((err) => console.error('Erro ao conectar com o banco de dados:', err));
 
 module.exports = sequelize;

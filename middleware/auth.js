@@ -5,41 +5,38 @@ module.exports = (secrets) => (req, resp, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
-    console.log('Authorization header missing');
+    console.info('Authorization header missing');
     return next();
   }
 
   const [type, token] = authorization.split(' ');
 
   if (type.toLowerCase() !== 'bearer') {
-    console.log('Invalid authorization type');
+    console.warn('Invalid authorization type');
     return next();
   }
 
   jwt.verify(token, secrets, (err, decodedToken) => {
     if (err) {
-      console.log('Token verification failed:', err);
+      console.error('Token verification failed:', err);
       return resp.status(403).send('Acesso proibido');
     }
 
-    console.log('Token verified:', decodedToken);
+    console.info('Token verified:', decodedToken);
     req.user = decodedToken;
     next();
   });
 };
 
-
-
-
 // Verifica se o usuário está autenticado
 module.exports.isAuthenticated = (req) => {
-  const user = req.user;
+  const { user } = req;
   return user !== undefined;
 };
 
 // Verifica se o usuário possui a role "admin"
 module.exports.isAdmin = (req) => {
-  const user = req.user;
+  const { user } = req;
   return user && user.role && user.role === 'admin';
 };
 

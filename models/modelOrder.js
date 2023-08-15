@@ -25,9 +25,11 @@ module.exports = (sequelize) => {
 
   Order.beforeUpdate(async (order, options) => {
     if (order.changed('status') && order.status === 'Concluído') {
-      order.dateProcessed = new Date();
+      const updatedOrder = { ...order, dateProcessed: new Date() };
+      return updatedOrder;
     }
   });
+
   Order.associate = (models) => {
     Order.belongsToMany(models.Product, {
       through: models.OrderProducts,

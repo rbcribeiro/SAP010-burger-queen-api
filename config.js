@@ -9,11 +9,10 @@ const dbConfig = {
   dialect: process.env.DB_DIALECT,
   adminEmail: process.env.DB_ADMIN_EMAIL,
   adminPassword: process.env.DB_ADMIN_PASSWORD,
-}
+};
 
-const secrets =process.env.JWT_SECRETS;
+const secrets = process.env.JWT_SECRETS;
 const port = process.env.PORT || 8080;
-
 
 module.exports = {
   dbConfig,
