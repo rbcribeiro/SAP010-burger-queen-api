@@ -6,7 +6,7 @@ const { secrets } = require('../config');
 
 module.exports = (app, nextMain) => {
   app.post('/auth', async (req, res, next) => {
-    console.log('Received login request');
+    console.info('Received login request');
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -21,7 +21,7 @@ module.exports = (app, nextMain) => {
           },
         },
       });
-      console.log(user)
+      console.info(user);
       if (!user) {
         return next(401);
       }

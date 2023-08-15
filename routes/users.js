@@ -29,7 +29,7 @@ module.exports = (app, next) => {
 
   app.get('/users/:uid', requireAuth, async (req, res) => {
     try {
-      const uid = req.params.uid;
+      const { uid } = req.params;
       const user = await User.findOne({ where: { id: uid } });
 
       if (!user) {
@@ -58,10 +58,10 @@ module.exports = (app, next) => {
   });
 
   app.put('/users/:uid', requireAuth, async (req, res) => {
-    const uid = req.params.uid;
-    
+    const { uid } = req.params;
+
     // Check if the authenticated user is the same as the user being updated
-    if (!isAdmin(req) && req.user.id !== parseInt(uid)) {
+    if (!isAdmin(req) && req.user.id !== parseInt(uid, 10)) {
       return res.status(403).json({ message: 'Acesso proibido' });
     }
 
@@ -92,7 +92,7 @@ module.exports = (app, next) => {
 
   app.delete('/users/:uid', requireAuth, async (req, res) => {
     try {
-      const uid = req.params.uid;
+      const { uid } = req.params;
       const user = await User.findOne({ where: { id: uid } });
 
       if (!user) {
@@ -101,8 +101,7 @@ module.exports = (app, next) => {
 
       await user.destroy();
 
-
-      resp.status(200).json({ message: 'Usuário excluído com sucesso!' });
+      res.status(200).json({ message: 'Usuário excluído com sucesso!' });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Erro interno do servidor' });

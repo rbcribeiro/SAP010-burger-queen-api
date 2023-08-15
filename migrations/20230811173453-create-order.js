@@ -1,5 +1,3 @@
-'use strict';
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Orders', {
@@ -7,37 +5,37 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       userId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       client: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       products: {
-        type: Sequelize.JSONB
+        type: Sequelize.JSONB,
       },
       status: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       dateEntry: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       dateProcessed: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Orders');
-  }
+  },
 };

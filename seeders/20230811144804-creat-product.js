@@ -5,9 +5,9 @@
 //     const productsData = [
 //       {
 //         name: 'Hamburguer Clássico',
-//         price: 10.99, 
+//         price: 10.99,
 //         image: 'url_da_imagem',
-//         type: 'almoço', 
+//         type: 'almoço',
 //         createdAt: new Date(),
 //         updatedAt: new Date(),
 //       },
