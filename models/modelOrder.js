@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
     },
   });
 
-  Order.beforeUpdate(async (order, options) => {
+  Order.beforeUpdate(async (order) => {
     if (order.changed('status') && order.status === 'Concluído') {
       const updatedOrder = { ...order, dateProcessed: new Date() };
       return updatedOrder;
