@@ -1,4 +1,3 @@
-// modelOrder.js
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
@@ -25,7 +24,7 @@ module.exports = (sequelize) => {
 
   Order.beforeUpdate(async (order) => {
     if (order.changed('status') && order.status === 'Concluído') {
-      const updatedOrder = { ...order, dateProcessed: new Date() };
+      const updatedOrder = { ...order.dataValues, dateProcessed: new Date() };
       return updatedOrder;
     }
   });

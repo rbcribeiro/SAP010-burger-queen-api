@@ -15,6 +15,5 @@
       "allow": ["info", "warn", "error"]
     }],
     "linebreak-style": 0
-    // "no-restricted-syntax": "off"
   }
 }
