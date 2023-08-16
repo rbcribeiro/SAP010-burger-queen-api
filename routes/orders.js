@@ -1,6 +1,4 @@
-const {
-  requireAuth,
-} = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 const { getOrders } = require('../controller/orders');
 const { Order, Product, User } = require('../models');
 
@@ -22,7 +20,28 @@ module.exports = (app, nextMain) => {
         return resp.status(404).json({ message: 'Ordem não encontrada' });
       }
 
-      resp.status(200).json(order);
+      const responseOrder = {
+        id: order.id,
+        userId: order.userId,
+        client: order.client,
+        status: order.status,
+        dateEntry: order.dateEntry,
+        ...(order.status === 'Concluído' && {
+          dateProcessed: order.dateProcessed,
+        }),
+        Products: order.Products.map((product) => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          type: product.type,
+          OrderProducts: {
+            quantity: product.OrderProducts.quantity,
+          },
+        })),
+      };
+
+      resp.status(200).json(responseOrder);
     } catch (error) {
       console.error(error);
       resp.status(500).json({ message: 'Erro interno do servidor' });
@@ -34,12 +53,16 @@ module.exports = (app, nextMain) => {
       const { userId, client, products } = req.body;
 
       if (!userId || !client || !products || !products.length) {
-        return resp.status(400).json({ message: 'Dados incompletos na requisição.' });
+        return resp
+          .status(400)
+          .json({ message: 'Dados incompletos na requisição.' });
       }
 
       const existingUser = await User.findByPk(userId);
       if (!existingUser) {
-        return resp.status(404).json({ message: `Usuário com ID ${userId} não encontrado.` });
+        return resp
+          .status(404)
+          .json({ message: `Usuário com ID ${userId} não encontrado.` });
       }
 
       const order = await Order.create({
@@ -49,22 +72,44 @@ module.exports = (app, nextMain) => {
         dateEntry: new Date(),
       });
 
-      // Mapeia as promessas de adição de produtos
       const addProductPromises = products.map(async (productData) => {
         const { qty, product } = productData;
         const existingProduct = await Product.findByPk(product.id);
 
         if (!existingProduct) {
-          return resp.status(404).json({ message: `Produto com ID ${product.id} não encontrado.` });
+          return resp
+            .status(404)
+            .json({ message: `Produto com ID ${product.id} não encontrado.` });
         }
 
         await order.addProduct(existingProduct, { through: { quantity: qty } });
       });
 
-      // Aguarda todas as promessas serem resolvidas antes de continuar
       await Promise.all(addProductPromises);
 
-      return resp.status(201).json(order);
+      const orderWithProducts = await Order.findByPk(order.id, {
+        include: {
+          model: Product,
+          through: { attributes: ['quantity'] },
+          attributes: { exclude: ['createdAt', 'updatedAt'] },
+        },
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
+      });
+
+      const responseOrder = {
+        id: orderWithProducts.id,
+        userId: orderWithProducts.userId,
+        client: orderWithProducts.client,
+        status: orderWithProducts.status,
+        dateEntry: orderWithProducts.dateEntry,
+        Products: orderWithProducts.Products,
+      };
+
+      if (orderWithProducts.dateProcessed !== null) {
+        responseOrder.dateProcessed = orderWithProducts.dateProcessed;
+      }
+
+      return resp.status(201).json(responseOrder);
     } catch (error) {
       console.error(error);
       return resp.status(500).json({ message: 'Erro interno do servidor' });
@@ -80,7 +125,9 @@ module.exports = (app, nextMain) => {
 
       if (!allowedStatusValues.includes(status)) {
         return res.status(400).json({
-          message: `O valor do campo "status" deve ser um dos seguintes: ${allowedStatusValues.join(', ')}`,
+          message: `O valor do campo 'status' deve ser um dos seguintes: ${allowedStatusValues.join(
+            ', ',
+          )}`,
         });
       }
 
@@ -90,11 +137,24 @@ module.exports = (app, nextMain) => {
         return res.status(404).json({ message: 'Ordem não encontrada' });
       }
 
+      if (order.status !== 'Concluído' && status === 'Concluído') {
+        order.dateProcessed = new Date();
+      }
+
       order.status = status;
 
-      order.save();
+      await order.save();
 
-      res.status(200).json(order);
+      const responseOrder = {
+        id: order.id,
+        userId: order.userId,
+        client: order.client,
+        status: order.status,
+        dateEntry: order.dateEntry,
+        dateProcessed: order.dateProcessed,
+      };
+
+      res.status(200).json(responseOrder);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Erro interno do servidor' });
