@@ -1,6 +1,6 @@
 const {
   getUsers,
-} = require('../users'); // Certifique-se de usar o caminho correto para o módulo
+} = require('../users');
 const models = require('../../models');
 
 jest.mock('../../models', () => ({
