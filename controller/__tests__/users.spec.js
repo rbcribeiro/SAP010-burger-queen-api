@@ -35,7 +35,7 @@ jest.mock('../../models', () => ({
 }));
 
 describe('getUsers', () => {
-  it('Deve obter coleção de usuários - Teste 1', async () => {
+  it('Deve obter coleção de usuários', async () => {
     const mockReq = {};
     const mockResp = {
       json: jest.fn(),
