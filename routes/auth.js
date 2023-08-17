@@ -10,7 +10,7 @@ module.exports = (app, nextMain) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return next(400);
+      return res.status(400).json({ message: 'Bad request' });
     }
 
     try {
@@ -21,21 +21,21 @@ module.exports = (app, nextMain) => {
           },
         },
       });
-      console.info(user);
+
       if (!user) {
-        return next(401);
+        return res.status(404).json({ message: 'Not found' });
       }
 
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (!passwordMatch) {
-        return next(401);
+        return res.status(404).json({ message: 'Not found' });
       }
 
       const token = jwt.sign({ email: user.email, role: user.role }, secrets, { expiresIn: '1h' });
-      res.json({ token });
+      res.status(200).json({ token });
     } catch (error) {
       console.error('Erro ao autenticar usuário:', error);
-      next(500);
+      res.status(500).json({ message: 'Internal server error' });
     }
   });
 
