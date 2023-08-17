@@ -4,21 +4,18 @@ const authMiddleware = require('./middleware/auth');
 const errorHandler = require('./middleware/error');
 const routes = require('./routes');
 const pkg = require('./package.json');
+const sequelize = require('./database'); // Import the configured Sequelize instance from database.js
 
 const { port, secrets } = config;
 const app = express();
 
-// TODO: Conexión a la Base de Datos (MongoDB o MySQL)
-
 app.set('config', config);
 app.set('pkg', pkg);
 
-// parse application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(authMiddleware(secrets));
 
-// Registrar rutas
 routes(app, (err) => {
   if (err) {
     throw err;
@@ -26,7 +23,13 @@ routes(app, (err) => {
 
   app.use(errorHandler);
 
-  app.listen(port, () => {
-    console.info(`App listening on port ${port}`);
-  });
+  sequelize.sync() 
+    .then(() => {
+      app.listen(port, () => {
+        console.info(`App listening on port ${port}`);
+      });
+    })
+    .catch((error) => {
+      console.error('Error synchronizing database:', error);
+    });
 });

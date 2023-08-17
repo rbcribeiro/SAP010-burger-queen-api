@@ -1,3 +1,4 @@
+const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
 const dbConfig = {
@@ -12,10 +13,24 @@ const dbConfig = {
 };
 
 const secrets = process.env.JWT_SECRETS;
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8888;
+const remoteUrl = process.env.REMOTE_URL || `http://127.0.0.1:${port}`;
+
+const sequelize = new Sequelize(
+  dbConfig.database,
+  dbConfig.user,
+  dbConfig.password,
+  {
+    host: dbConfig.host,
+    port: dbConfig.port,
+    dialect: dbConfig.dialect,
+  },
+);
 
 module.exports = {
   dbConfig,
   secrets,
   port,
+  remoteUrl,
+  sequelize,
 };
