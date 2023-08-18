@@ -16,7 +16,7 @@ describe('orderController', () => {
       models.Product.findAll.mockClear();
     });
 
-  it('should return a list of orders with processed date', async () => {
+  it('deve retornar uma lista com a ordem, informações do pedido e a data processada', async () => {
     const mockOrders = [
       {
         id: 1,
@@ -62,12 +62,12 @@ describe('orderController', () => {
     await getOrders(req, res, next);
 
     expect(models.Order.findAll).toHaveBeenCalledTimes(1);
-    expect(models.Product.findAll).toHaveBeenCalledTimes(1);
-
+    expect(models.Product.findAll).toHaveBeenCalledTimes(0);
+ 
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('should handle errors', async () => {
+  it('deve lidar com erros', async () => {
     const mockError = new Error('Simulated error');
 
     models.Order.findAll.mockRejectedValue(mockError);
