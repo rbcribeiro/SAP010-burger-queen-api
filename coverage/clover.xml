@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1692634926903" clover="3.2.0">
-  <project timestamp="1692634926904" name="All files">
+<coverage generated="1692635657591" clover="3.2.0">
+  <project timestamp="1692635657591" name="All files">
     <metrics statements="148" coveredstatements="102" conditionals="65" coveredconditionals="34" methods="16" coveredmethods="14" elements="229" coveredelements="150" complexity="0" loc="148" ncloc="148" packages="2" files="4" classes="4"/>
     <package name="SAP010-burger-queen-api">
       <metrics statements="8" coveredstatements="8" conditionals="4" coveredconditionals="2" methods="0" coveredmethods="0"/>
