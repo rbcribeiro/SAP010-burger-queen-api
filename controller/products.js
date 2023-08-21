@@ -1,15 +1,21 @@
-// products.js (controller)
 const { Product } = require('../models');
 const { isAdmin } = require('../middleware/auth');
+
+const handleServerError = (req, resp, next) => {
+  try {
+    throw new Error('Erro interno do servidor.');
+  } catch (error) {
+    next({ status: 500, message: error.message });
+  }
+};
 
 module.exports = {
   getProducts: async (req, resp, next) => {
     try {
       const products = await Product.findAll();
-
       return resp.json(products);
-    } catch (error) {      
-      next({ status: 500, message: 'Erro interno do servidor.' });
+    } catch (error) {
+      handleServerError(req, resp, next);
     }
   },
 
@@ -24,7 +30,7 @@ module.exports = {
 
       resp.status(200).json(product);
     } catch (error) {
-      next({ status: 500, message: 'Erro interno do servidor.' });
+      handleServerError(req, resp, next);
     }
   },
 
@@ -48,7 +54,7 @@ module.exports = {
       });
       return resp.status(201).json(newProduct);
     } catch (error) {
-      next({ status: 500, message: 'Erro interno do servidor.' });
+      handleServerError(req, resp, next);
     }
   },
 
@@ -56,7 +62,7 @@ module.exports = {
     const uid = req.params.productId;
 
     if (!isAdmin(req) && req.product.id !== parseInt(uid, 10)) {
-      next({ status: 403, message: 'Acesso proibido' });
+      return resp.status(403).json({ message: 'Acesso proibido' });
     }
 
     try {
@@ -70,7 +76,7 @@ module.exports = {
       const product = await Product.findOne({ where: { id: uid } });
 
       if (!product) {
-        next({ status: 404, message: 'Produto não encontrado' });
+        return resp.status(404).json({ message: 'Produto não encontrado.' });
       }
 
       product.name = name || product.name;
@@ -78,12 +84,16 @@ module.exports = {
       product.image = image || product.image;
       product.type = type || product.type;
 
-      await product.save();
+      await product.update({
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        type: product.type,
+      });
 
       resp.status(200).json(product);
     } catch (error) {
-
-      next({ status: 500, message: 'Erro interno do servidor' });
+      handleServerError(req, resp, next);
     }
   },
 
@@ -93,15 +103,14 @@ module.exports = {
       const product = await Product.findOne({ where: { id: uid } });
 
       if (!product) {
-        next({ status: 404, message: 'Produto não encontrado' });
+        return resp.status(404).json({ message: 'Produto não encontrado' });
       }
 
       await product.destroy();
 
       resp.status(200).json({ message: 'Produto excluído com sucesso!' });
     } catch (error) {
-
-      next({ status: 500, message: 'Erro interno do servidor' });
+      handleServerError(req, resp, next);
     }
   },
 };
