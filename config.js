@@ -10,9 +10,10 @@ const dbConfig = {
   dialect: process.env.DB_DIALECT,
   adminEmail: process.env.DB_ADMIN_EMAIL,
   adminPassword: process.env.DB_ADMIN_PASSWORD,
+  secret: process.env.JWT_SECRET,
 };
 
-const secrets = process.env.JWT_SECRETS;
+const secret = process.env.JWT_SECRET;
 const port = process.env.PORT || 8888;
 const remoteUrl = process.env.REMOTE_URL || `http://127.0.0.1:${port}`;
 
@@ -29,7 +30,7 @@ const sequelize = new Sequelize(
 
 module.exports = {
   dbConfig,
-  secrets,
+  secret,
   port,
   remoteUrl,
   sequelize,
