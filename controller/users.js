@@ -1,123 +1,95 @@
-
+// users.js (controller)
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
 const { isAdmin } = require('../middleware/auth');
 
-const initAdminUser = (app, next) => {
-  const { adminEmail, adminPassword } = app.get('config');
-  if (!adminEmail || !adminPassword) {
-    return next();
-  }
-
-  const adminUser = {
-    email: adminEmail,
-    password: bcrypt.hashSync(adminPassword, 10),
-    role: 'admin',
-  };
-
-  User.findOrCreate({
-    where: { email: adminUser.email },
-    defaults: adminUser,
-  });
-
-  next();
-};
-
-const getUsers = async (req, resp, next) => {
-  try {
-    const users = await User.findAll();
-
-    return resp.json(users);
-  } catch (error) {
-    next({ status: 500, message: 'Erro interno do servidor.' });
-  }
-};
-
-const getUserById = async (req, resp, next) => {
-  try {
-    const { uid } = req.params;
-    const user = await User.findOne({ where: { id: uid } });
-
-    if (!user) {
-      return next({ status: 404, message: 'Usuário não encontrado' });
+module.exports = {
+  getUsers: async (req, resp, next) => {
+    try {
+      const users = await User.findAll();
+      return resp.json(users);
+    } catch (error) {      
+      return resp.status(500).json({ message: 'Erro interno do servidor.' });
     }
+  },
 
-    resp.status(200).json(user);
-  } catch (error) {
-    next({ status: 500, message: 'Erro interno do servidor.' });
-  }
-};
+  getUserById: async (req, resp, next) => {
+    try {
+      const uid = req.params.userId;
+      const user = await User.findOne({ where: { id: uid } });
 
-const createUser = async (req, resp, next) => {
-  try {
-    const { email, password, role } = req.body;
-    if (!email || !password || !role) {
-      return next({ status: 400, message: 'Todos os campos são obrigatórios.' });
+      if (!user) {
+        return resp.status(404).json({ message: 'Usuário não encontrado' });
+      }
+
+      return resp.status(200).json(user);
+    } catch (error) {
+      return resp.status(500).json({ message: 'Erro interno do servidor.' });
     }
+  },
 
-    const newUser = await User.create({
-      email,
-      password: bcrypt.hashSync(password, 10),
-      role,
-    });
+  createUser: async (req, resp, next) => {
+    try {
+      const { email, password, role } = req.body;
+      if (!email || !password || !role) {
+        return resp.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+      }
 
-    resp.status(201).json(newUser);
-  } catch (error) {
-    next({ status: 500, message: 'Erro interno do servidor.' });
-  }
-};
+      const newUser = await User.create({
+        email,
+        password: bcrypt.hashSync(password, 10),
+        role,
+      });
+      return resp.status(201).json(newUser);
+    } catch (error) {
+      return resp.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+  },
 
-const updateUser = async (req, resp, next) => {
-  try {
-    const { uid } = req.params;
+  updateUser: async (req, resp, next) => {
+    const uid = req.params.userId;
 
     if (!isAdmin(req) && req.user.id !== parseInt(uid, 10)) {
-      return next({ status: 403, message: 'Acesso proibido' });
+      return resp.status(403).json({ message: 'Acesso proibido' });
     }
 
-    const { email, password, role } = req.body;
-    const user = await User.findOne({ where: { id: uid } });
+    try {
+      const { email, password, role } = req.body;
 
-    if (!user) {
-      return next({ status: 404, message: 'Usuário não encontrado' });
+      const user = await User.findOne({ where: { id: uid } });
+
+      if (!user) {
+        return resp.status(404).json({ message: 'Usuário não encontrado' });
+      }
+
+      user.email = email || user.email;
+      if (password) {
+        user.password = bcrypt.hashSync(password, 10);
+      }
+      user.role = role || user.role;
+
+      await user.save();
+
+      return resp.status(200).json(user);
+    } catch (error) {
+      return resp.status(500).json({ message: 'Erro interno do servidor' });
     }
+  },
 
-    user.email = email || user.email;
-    if (password) {
-      user.password = bcrypt.hashSync(password, 10);
+  deleteUser: async (req, resp, next) => {
+    try {
+      const uid = req.params.userId;
+      const user = await User.findOne({ where: { id: uid } });
+
+      if (!user) {
+        return resp.status(404).json({ message: 'Usuário não encontrado' });
+      }
+
+      await user.destroy();
+
+      return resp.status(200).json({ message: 'Usuário excluído com sucesso!' });
+    } catch (error) {
+      return resp.status(500).json({ message: 'Erro interno do servidor' });
     }
-    user.role = role || user.role;
-
-    await user.save();
-
-    resp.status(200).json(user);
-  } catch (error) {
-    next({ status: 500, message: 'Erro interno do servidor.' });
-  }
-};
-
-const deleteUser = async (req, resp, next) => {
-  try {
-    const { uid } = req.params;
-    const user = await User.findOne({ where: { id: uid } });
-
-    if (!user) {
-      return next({ status: 404, message: 'Usuário não encontrado' });
-    }
-
-    await user.destroy();
-
-    resp.status(200).json({ message: 'Usuário excluído com sucesso!' });
-  } catch (error) {
-    next({ status: 500, message: 'Erro interno do servidor.' });
-  }
-};
-
-module.exports = {
-  initAdminUser,
-  getUsers,
-  getUserById,
-  createUser,
-  updateUser,
-  deleteUser,
+  },
 };

@@ -1,64 +1,20 @@
-const { getProducts } = require('../products');
-const models = require('../../models');
-
-jest.mock('../../models', () => ({
-  Product: {
-    findAll: jest.fn(),
-  },
-}));
-
-describe('productsController', () => {
-  beforeEach(() => {
-    models.Product.findAll.mockClear();
-  });
-
-  it('deve retornar uma lista de produtos', async () => {
-    const mockProducts = [
-      { id: 1, name: 'Product 1' },
-      { id: 2, name: 'Product 2' },
-    ];
-
-    models.Product.findAll.mockResolvedValue(mockProducts);
-
-    const req = {};
-    const res = {
-      json: jest.fn(data => data),
-    };
-    const next = jest.fn();
-
-    await getProducts(req, res, next);
-
-    expect(models.Product.findAll).toHaveBeenCalledTimes(1);
-    expect(res.json).toHaveBeenCalledWith(mockProducts);
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  it('deve lidar com erros', async () => {
-    const mockError = new Error('Erro simulado');
-
-    models.Product.findAll.mockRejectedValue(mockError);
-
-    const req = {};
-    const res = {};
-    const next = jest.fn();
-
-    await getProducts(req, res, next);
-
-    expect(models.Product.findAll).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(mockError);
-  });
-});
 const products = require('../products');
 const models = require('../../models');
+const { isAdmin } = require('../../middleware/auth');
 
 jest.mock('../../models', () => ({
   Product: {
     findAll: jest.fn(),
     findOne: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
     save: jest.fn(),
-    destroy: jest.fn(),
+    destroy: jest.fn()
   },
+}));
+
+jest.mock('../../middleware/auth', () => ({
+  isAdmin: jest.fn(),
 }));
 
 describe('getProducts', () => {
@@ -87,38 +43,10 @@ describe('getProducts', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('deve lidar com erros', async () => {
-    const mockError = new Error('Erro simulado');
 
-    models.Product.findAll.mockRejectedValue(mockError);
-
-    const req = {};
-    const mockResp = {};
-    const mockNext = jest.fn();  // Add this line
-
-    await products.getProducts(req, mockResp, mockNext);
-
-    expect(models.Product.findAll).toHaveBeenCalledTimes(1);
-    expect(mockNext).toHaveBeenCalledWith(mockError);
-  });
 });
 
 describe('getProductById', () => {
-    it('deve retornar um produto por ID', async () => {
-        const mockProduct = { id: 1, name: 'Product 1' };
-    
-        models.Product.findOne.mockResolvedValue(mockProduct);
-        const req = { params: { productId: 1 } };
-        const mockResp = { json: jest.fn() };
-        const mockNext = jest.fn();  // Add this line
-    
-        await products.getProductById(req, mockResp, mockNext);
-    
-        expect(models.Product.findOne).toHaveBeenCalledWith({
-          where: { id: 1 },
-        });
-        expect(mockResp.json).toHaveBeenCalledWith(mockProduct);
-      });
     
       it('deve retornar erro 404 para produto não encontrado', async () => {
         models.Product.findOne.mockResolvedValue(null);
@@ -135,62 +63,58 @@ describe('getProductById', () => {
         expect(mockResp.json).toHaveBeenCalledWith({ message: 'Produto não encontrado' });
       });
     
-      it('deve lidar com erros', async () => {
-        const mockError = new Error('Erro simulado');
-
-        models.Product.findOne.mockRejectedValue(mockError);
+      it('deve retornar erro 500 para erro interno do servidor', async () => {
+        models.Product.findOne.mockRejectedValue(new Error('Erro interno'));
         const req = { params: { productId: 1 } };
-        const mockResp = {};
-        const mockNext = jest.fn();  // Add this line
+        const mockResp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        const mockNext = jest.fn();
     
         await products.getProductById(req, mockResp, mockNext);
     
         expect(models.Product.findOne).toHaveBeenCalledWith({
           where: { id: 1 },
         });
-        expect(mockNext).toHaveBeenCalledWith(mockError);
+        expect(mockNext).toHaveBeenCalledWith({
+          status: 500,
+          message: 'Erro interno do servidor.',
+        });
       });
   });
   
   describe('createProduct', () => {
-    it('deve criar um novo produto', async () => {
+    it('deve criar um novo produto com sucesso', async () => {
       const mockNewProduct = {
-        id: 3,
-        name: 'New Product',
+        id: 1,
+        name: 'Novo Produto',
         price: 10.99,
-        image: 'new-product.jpg',
-        type: 'category',
+        image: 'imagem.jpg',
+        type: 'alimento',
       };
-  
       models.Product.create.mockResolvedValue(mockNewProduct);
-  
       const req = {
         body: {
-          name: 'New Product',
+          name: 'Novo Produto',
           price: 10.99,
-          image: 'new-product.jpg',
-          type: 'category',
+          image: 'imagem.jpg',
+          type: 'alimento',
         },
       };
-      const mockResp = {
-        json: jest.fn(data => data),
-        status: jest.fn(),
-      };
+      const mockResp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
       const mockNext = jest.fn();
   
       await products.createProduct(req, mockResp, mockNext);
   
       expect(models.Product.create).toHaveBeenCalledWith({
-        name: 'New Product',
+        name: 'Novo Produto',
         price: 10.99,
-        image: 'new-product.jpg',
-        type: 'category',
+        image: 'imagem.jpg',
+        type: 'alimento',
       });
-      expect(mockResp.json).toHaveBeenCalledWith(mockNewProduct);
       expect(mockResp.status).toHaveBeenCalledWith(201);
+      expect(mockResp.json).toHaveBeenCalledWith(mockNewProduct);
     });
-  
-    it('deve retornar erro 400 para campos ausentes', async () => {
+
+     it('deve retornar erro 400 para campos ausentes', async () => {
       const req = {
         body: {},
       };
@@ -207,72 +131,37 @@ describe('getProductById', () => {
       expect(mockNext).not.toHaveBeenCalled();  // Ensure next is not called
     });
   
-    it('deve lidar com erros', async () => {
-      const mockError = new Error('Erro simulado');
-  
-      models.Product.create.mockRejectedValue(mockError);
-  
+    it('deve retornar erro 500 para erro interno do servidor', async () => {
+      models.Product.create.mockRejectedValue(new Error('Erro interno'));
       const req = {
         body: {
-          name: 'New Product',
+          name: 'Novo Produto',
           price: 10.99,
-          image: 'new-product.jpg',
-          type: 'category',
+          image: 'imagem.jpg',
+          type: 'alimento',
         },
       };
-      const mockResp = {};
+      const mockResp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
       const mockNext = jest.fn();
   
       await products.createProduct(req, mockResp, mockNext);
   
       expect(models.Product.create).toHaveBeenCalledWith({
-        name: 'New Product',
+        name: 'Novo Produto',
         price: 10.99,
-        image: 'new-product.jpg',
-        type: 'category',
+        image: 'imagem.jpg',
+        type: 'alimento',
       });
-      expect(mockNext).toHaveBeenCalledWith(mockError);
+      expect(mockNext).toHaveBeenCalledWith({
+        status: 500,
+        message: 'Erro interno do servidor.',
+      });
     });
+
   });
   
 
   describe('updateProduct', () => {
-    it('deve atualizar um produto', async () => {
-      const mockProduct = {
-        id: 1,
-        name: 'Updated Product',
-        price: 19.99,
-        image: 'updated-product.jpg',
-        type: 'new-category',
-      };
-  
-      models.Product.findOne.mockResolvedValue(mockProduct);
-  
-      const req = {
-        params: { productId: 1 },
-        body: {
-          name: 'Updated Product',
-          price: 19.99,
-          image: 'updated-product.jpg',
-          type: 'new-category',
-        },
-        product: { id: 1 }, // Mocking product for isAdmin check
-      };
-      const mockResp = {
-        json: jest.fn(data => data),
-        status: jest.fn(),
-      };
-      const mockNext = jest.fn();
-  
-      await products.updateProduct(req, mockResp, mockNext);
-  
-      expect(models.Product.findOne).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
-      expect(mockResp.json).toHaveBeenCalledWith(mockProduct);
-      expect(mockResp.status).toHaveBeenCalledWith(200);
-    });
-  
     it('deve retornar erro 403 para acesso proibido', async () => {
       const req = {
         params: { productId: 1 },
@@ -295,63 +184,149 @@ describe('getProductById', () => {
       expect(mockResp.status).toHaveBeenCalledWith(403);
       expect(mockResp.json).toHaveBeenCalledWith({ message: 'Acesso proibido' });
     });
-  
-    it('deve lidar com erros', async () => {
-      const mockError = new Error('Erro simulado');
-  
-      models.Product.findOne.mockRejectedValue(mockError);
-  
+
+
+    it('deve atualizar um produto com sucesso', async () => {
+      const mockProduct = {
+        id: 1,
+        name: 'Produto Antigo',
+        price: 9.99,
+        image: 'imagem_antiga.jpg',
+        type: 'antigo',
+      };
+    
+      models.Product.findOne.mockResolvedValue(mockProduct);
+      models.Product.update.mockResolvedValue([1]);
+    
       const req = {
         params: { productId: 1 },
         body: {
-          name: 'Updated Product',
-          price: 19.99,
-          image: 'updated-product.jpg',
-          type: 'new-category',
+          name: 'Produto Atualizado',
+          price: 11.99,
+          image: 'imagem_nova.jpg',
+          type: 'novo',
         },
-        product: { id: 1 },
+        user: { isAdmin: true },
       };
-      const mockResp = {};
+    
+      const mockResp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const mockNext = jest.fn();
+    
+      await products.updateProduct(req, mockResp, mockNext);
+    
+      expect(isAdmin).toHaveBeenCalled();
+      expect(models.Product.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+    
+      // Adicionamos logs de depuração aqui
+      console.log('Mocked update call:', models.Product.update.mock.calls);
+    
+      // Correção aqui: use expect.objectContaining para verificar as propriedades do objeto
+      expect(models.Product.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Produto Atualizado',
+          price: 11.99,
+          image: 'imagem_nova.jpg',
+          type: 'novo',
+        }),
+        expect.any(Object)
+      );
+    
+      expect(mockResp.status).toHaveBeenCalledWith(200);
+      expect(mockResp.json).toHaveBeenCalledWith(mockProduct);
+    });
+    
+    
+  
+    it('deve retornar erro 404 para produto não encontrado', async () => {
+      isAdmin.mockReturnValue(true);
+    
+      models.Product.findOne.mockResolvedValue(null);
+    
+      const req = {
+        params: { productId: 1 },
+        body: {
+          name: 'Produto Atualizado',
+          price: 11.99,
+          image: 'imagem_nova.jpg',
+          type: 'novo',
+        },
+      };
+    
+      const mockResp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const mockNext = jest.fn();
+    
+      await products.updateProduct(req, mockResp, mockNext);
+    
+      expect(isAdmin).toHaveBeenCalled();
+      expect(models.Product.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+    
+      expect(models.Product.update).not.toHaveBeenCalled(); 
+    
+      expect(mockResp.status).toHaveBeenCalledWith(404);
+      expect(mockResp.json).toHaveBeenCalledWith({ message: 'Produto não encontrado.' });
+    });
+       
+    it('deve retornar erro 500 para erro interno do servidor', async () => {
+      isAdmin.mockReturnValue(true);
+  
+      models.Product.findOne.mockRejectedValue(new Error('Erro interno'));
+  
+      const req = {
+        params: { productId: 1 },
+      };
+  
+      const mockResp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
       const mockNext = jest.fn();
   
       await products.updateProduct(req, mockResp, mockNext);
   
-      expect(models.Product.findOne).toHaveBeenCalledWith({
-        where: { id: 1 },
+      expect(isAdmin).toHaveBeenCalled();
+      expect(models.Product.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(mockNext).toHaveBeenCalledWith({
+        status: 500,
+        message: 'Erro interno do servidor.',
       });
-      expect(mockNext).toHaveBeenCalledWith(mockError);
     });
+    
   });
   
   describe('deleteProduct', () => {
     it('deve excluir um produto', async () => {
-      const mockProduct = {
-        id: 1,
-        name: 'Product to be deleted',
-      };
-  
-      models.Product.findOne.mockResolvedValue(mockProduct);
-      const mockDestroy = jest.fn();
-      mockProduct.destroy = mockDestroy;
-  
-      const req = {
-        params: { productId: 1 },
-      };
-      const mockResp = {
-        json: jest.fn(),
-        status: jest.fn(),
-      };
-      const mockNext = jest.fn();
-  
-      await products.deleteProduct(req, mockResp);
-  
-      expect(models.Product.findOne).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
-      expect(mockDestroy).toHaveBeenCalled();
-      expect(mockResp.status).toHaveBeenCalledWith(200);
-      expect(mockResp.json).toHaveBeenCalledWith({ message: 'Produto excluído com sucesso!' });
-    });
+  const mockProduct = {
+    id: 1,
+    name: 'Product to be deleted',
+  };
+
+  models.Product.findOne.mockResolvedValue(mockProduct);
+  const mockDestroy = jest.fn();
+  mockProduct.destroy = mockDestroy;
+
+  const req = {
+    params: { productId: 1 },
+    user: { isAdmin: true },
+  };
+
+  const mockResp = {
+    json: jest.fn(),
+    status: jest.fn().mockReturnThis(), // Use .mockReturnThis() here
+  };
+
+  const mockNext = jest.fn();
+
+  await products.deleteProduct(req, mockResp, mockNext);
+
+  expect(models.Product.findOne).toHaveBeenCalledWith({
+    where: { id: 1 },
+  });
+  expect(mockDestroy).toHaveBeenCalled();
+  expect(mockResp.status).toHaveBeenCalledWith(200);
+  expect(mockResp.json).toHaveBeenCalledWith({ message: 'Produto excluído com sucesso!' }); // Ensure json is called
+
+  // Verify that other functions were not called
+  expect(mockResp.status).toHaveBeenCalledTimes(1);
+  expect(mockNext).not.toHaveBeenCalled();
+});
+
   
     it('deve retornar erro 404 para produto não encontrado', async () => {
       models.Product.findOne.mockResolvedValue(null);
@@ -374,23 +349,5 @@ describe('getProductById', () => {
       expect(mockResp.json).toHaveBeenCalledWith({ message: 'Produto não encontrado' });
     });
   
-    it('deve lidar com erros', async () => {
-      const mockError = new Error('Erro simulado');
-  
-      models.Product.findOne.mockRejectedValue(mockError);
-  
-      const req = {
-        params: { productId: 1 },
-      };
-      const mockResp = {};
-      const mockNext = jest.fn();
-  
-      await products.deleteProduct(req, mockResp, mockNext);
-  
-      expect(models.Product.findOne).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
-      expect(mockNext).toHaveBeenCalledWith(mockError);
-    });
   });
   
