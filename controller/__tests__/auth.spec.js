@@ -9,7 +9,6 @@ jest.mock("../../models", () => ({
     findOne: jest.fn(),
   },
 }));
-
 describe("auth", () => {
   beforeEach(() => {
     User.findOne.mockClear();

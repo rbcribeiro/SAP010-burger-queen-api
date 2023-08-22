@@ -1,5 +1,4 @@
 const { Product } = require('../models');
-const { isAdmin } = require('../middleware/auth');
 
 const handleServerError = (req, resp, next) => {
   try {
@@ -58,44 +57,42 @@ module.exports = {
     }
   },
 
-  updateProduct: async (req, resp, next) => {
-    const uid = req.params.productId;
+updateProduct: async (req, resp, next) => {
+  const uid = req.params.productId;
 
-    if (!isAdmin(req) && req.product.id !== parseInt(uid, 10)) {
-      return resp.status(403).json({ message: 'Acesso proibido' });
+  try {
+    const {
+      name,
+      price,
+      image,
+      type,
+    } = req.body;
+
+    const product = await Product.findOne({ where: { id: uid } });
+
+    if (!product) {
+      return resp.status(404).json({ message: 'Produto não encontrado.' });
     }
 
-    try {
-      const {
-        name,
-        price,
-        image,
-        type,
-      } = req.body;
+    product.name = name || product.name;
+    product.price = price || product.price;
+    product.image = image || product.image;
+    product.type = type || product.type;
 
-      const product = await Product.findOne({ where: { id: uid } });
+    await product.update({
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      type: product.type,
+    });
 
-      if (!product) {
-        return resp.status(404).json({ message: 'Produto não encontrado.' });
-      }
+    resp.status(200).json(product);
+  } catch (error) {
+    handleServerError(req, resp, next);
+  }
+},
 
-      product.name = name || product.name;
-      product.price = price || product.price;
-      product.image = image || product.image;
-      product.type = type || product.type;
-
-      await product.update({
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        type: product.type,
-      });
-
-      resp.status(200).json(product);
-    } catch (error) {
-      handleServerError(req, resp, next);
-    }
-  },
+  
 
   deleteProduct: async (req, resp, next) => {
     try {

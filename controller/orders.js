@@ -1,5 +1,6 @@
 const { Order, Product, User } = require('../models');
 
+
 module.exports = {
   getOrders: async (req, resp, next) => {
     try {
@@ -9,6 +10,7 @@ module.exports = {
           through: { attributes: ['quantity'] },
         },
       });
+
 
       const ordersWithProcessedDate = orders.map((order) => ({
         id: order.id,
@@ -29,11 +31,13 @@ module.exports = {
         })),
       }));
 
+
       return resp.json(ordersWithProcessedDate);
     } catch (error) {
       next(error);
     }
   },
+
 
   getOrderById: async (req, resp, next) => {
     try {
@@ -46,9 +50,11 @@ module.exports = {
         },
       });
 
+
       if (!order) {
-        return next({ status: 404, message: 'Ordem não encontrada' });
+        return resp.status(404).json({ message: 'Ordem não encontrada' });
       }
+
 
       const responseOrder = {
         id: order.id,
@@ -71,28 +77,29 @@ module.exports = {
         })),
       };
 
+
       resp.status(200).json(responseOrder);
     } catch (error) {
       next(error);
     }
   },
 
+
   createOrder: async (req, resp, next) => {
     try {
       const { userId, client, products } = req.body;
 
+
       if (!userId || !client || !products || !products.length) {
-        return resp
-          .status(400)
-          .json({ message: 'Dados incompletos na requisição.' });
+        return resp.status(400).json({ message: 'Dados incompletos na requisição.' });
       }
+
 
       const existingUser = await User.findByPk(userId);
       if (!existingUser) {
-        return resp
-          .status(404)
-          .json({ message: `Usuário com ID ${userId} não encontrado.` });
+        return resp.status(404).json({ message: `Usuário com ID ${userId} não encontrado.` });
       }
+
 
       const order = await Order.create({
         userId,
@@ -101,9 +108,11 @@ module.exports = {
         dateEntry: new Date(),
       });
 
+
       const addProductPromises = products.map(async (productData) => {
         const { qty, product } = productData;
         const existingProduct = await Product.findByPk(product.id);
+
 
         if (!existingProduct) {
           return resp
@@ -111,10 +120,13 @@ module.exports = {
             .json({ message: `Produto com ID ${product.id} não encontrado.` });
         }
 
+
         await order.addProduct(existingProduct, { through: { quantity: qty } });
       });
 
+
       await Promise.all(addProductPromises);
+
 
       const orderWithProducts = await Order.findByPk(order.id, {
         include: {
@@ -125,6 +137,7 @@ module.exports = {
         attributes: { exclude: ['createdAt', 'updatedAt'] },
       });
 
+
       const responseOrder = {
         id: orderWithProducts.id,
         userId: orderWithProducts.userId,
@@ -134,9 +147,11 @@ module.exports = {
         Products: orderWithProducts.Products,
       };
 
+
       if (orderWithProducts.dateProcessed !== null) {
         responseOrder.dateProcessed = orderWithProducts.dateProcessed;
       }
+
 
       return resp.status(201).json(responseOrder);
     } catch (error) {
@@ -144,12 +159,15 @@ module.exports = {
     }
   },
 
+
   updateOrder: async (req, resp, next) => {
     try {
       const { orderId } = req.params;
       const { status } = req.body;
 
+
       const allowedStatusValues = ['Pendente', 'Processando', 'Concluído'];
+
 
       if (!allowedStatusValues.includes(status)) {
         return resp.status(400).json({
@@ -159,19 +177,25 @@ module.exports = {
         });
       }
 
+
       const order = await Order.findByPk(orderId);
+
 
       if (!order) {
         return resp.status(404).json({ message: 'Ordem não encontrada' });
       }
 
+
       if (order.status !== 'Concluído' && status === 'Concluído') {
         order.dateProcessed = new Date();
       }
 
+
       order.status = status;
 
+
       await order.save();
+
 
       const responseOrder = {
         id: order.id,
@@ -182,22 +206,27 @@ module.exports = {
         dateProcessed: order.dateProcessed,
       };
 
+
       resp.status(200).json(responseOrder);
     } catch (error) {
       next(error);
     }
   },
 
+
   deleteOrder: async (req, resp, next) => {
     try {
       const { orderId } = req.params;
       const order = await Order.findOne({ where: { id: orderId } });
 
+
       if (!order) {
-        return next({ status: 404, message: 'Ordem não encontrada' });
+        return resp.status(404).json({ message: 'Ordem não encontrada' });
       }
 
+
       await order.destroy();
+
 
       resp.status(200).json({ message: 'Ordem excluída com sucesso!' });
     } catch (error) {
@@ -205,3 +234,5 @@ module.exports = {
     }
   },
 };
+
+

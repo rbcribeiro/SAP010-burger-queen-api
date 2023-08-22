@@ -1,7 +1,14 @@
 // users.js (controller)
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
-const { isAdmin } = require('../middleware/auth');
+
+const handleServerError = (req, resp, next) => {
+  try {
+    throw new Error('Erro interno do servidor.');
+  } catch (error) {
+    next({ status: 500, message: error.message });
+  }
+};
 
 module.exports = {
   getUsers: async (req, resp, next) => {
@@ -9,7 +16,7 @@ module.exports = {
       const users = await User.findAll();
       return resp.json(users);
     } catch (error) {      
-      return resp.status(500).json({ message: 'Erro interno do servidor.' });
+      handleServerError(req, resp, next);
     }
   },
 
@@ -24,7 +31,7 @@ module.exports = {
 
       return resp.status(200).json(user);
     } catch (error) {
-      return resp.status(500).json({ message: 'Erro interno do servidor.' });
+      handleServerError(req, resp, next);
     }
   },
 
@@ -42,16 +49,12 @@ module.exports = {
       });
       return resp.status(201).json(newUser);
     } catch (error) {
-      return resp.status(500).json({ message: 'Erro interno do servidor.' });
+      handleServerError(req, resp, next);
     }
   },
 
   updateUser: async (req, resp, next) => {
     const uid = req.params.userId;
-
-    if (!isAdmin(req) && req.user.id !== parseInt(uid, 10)) {
-      return resp.status(403).json({ message: 'Acesso proibido' });
-    }
 
     try {
       const { email, password, role } = req.body;
@@ -59,7 +62,7 @@ module.exports = {
       const user = await User.findOne({ where: { id: uid } });
 
       if (!user) {
-        return resp.status(404).json({ message: 'Usuário não encontrado' });
+        handleServerError(req, resp, next);
       }
 
       user.email = email || user.email;
@@ -72,7 +75,7 @@ module.exports = {
 
       return resp.status(200).json(user);
     } catch (error) {
-      return resp.status(500).json({ message: 'Erro interno do servidor' });
+      handleServerError(req, resp, next);
     }
   },
 
@@ -89,7 +92,7 @@ module.exports = {
 
       return resp.status(200).json({ message: 'Usuário excluído com sucesso!' });
     } catch (error) {
-      return resp.status(500).json({ message: 'Erro interno do servidor' });
+      handleServerError(req, resp, next);
     }
   },
 };
