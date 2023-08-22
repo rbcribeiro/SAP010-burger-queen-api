@@ -1,7 +1,7 @@
 // middleware/auth.js
 const jwt = require('jsonwebtoken');
 
-module.exports = (secret) => (req, resp, next) => {
+module.exports = (secrets) => (req, resp, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -16,7 +16,7 @@ module.exports = (secret) => (req, resp, next) => {
     return next();
   }
 
-  jwt.verify(token, secret, (err, decodedToken) => {
+  jwt.verify(token, secrets, (err, decodedToken) => {
     if (err) {
       console.error('Token verification failed:', err);
       return resp.status(403).send('Acesso proibido');

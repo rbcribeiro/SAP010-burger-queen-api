@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1692651699987" clover="3.2.0">
-  <project timestamp="1692651699987" name="All files">
-    <metrics statements="186" coveredstatements="135" conditionals="85" coveredconditionals="48" methods="21" coveredmethods="20" elements="292" coveredelements="203" complexity="0" loc="186" ncloc="186" packages="2" files="5" classes="5"/>
+<coverage generated="1692723116053" clover="3.2.0">
+  <project timestamp="1692723116053" name="All files">
+    <metrics statements="183" coveredstatements="168" conditionals="77" coveredconditionals="62" methods="22" coveredmethods="22" elements="282" coveredelements="252" complexity="0" loc="183" ncloc="183" packages="2" files="5" classes="5"/>
     <package name="SAP010-burger-queen-api">
       <metrics statements="10" coveredstatements="10" conditionals="4" coveredconditionals="2" methods="0" coveredmethods="0"/>
       <file name="config.js" path="C:\Users\Renata\Desktop\projetos_laboratoria\SAP010-burger-queen-api\config.js">
@@ -19,9 +19,9 @@
       </file>
     </package>
     <package name="SAP010-burger-queen-api.controller">
-      <metrics statements="176" coveredstatements="125" conditionals="81" coveredconditionals="46" methods="21" coveredmethods="20"/>
+      <metrics statements="173" coveredstatements="158" conditionals="73" coveredconditionals="60" methods="22" coveredmethods="22"/>
       <file name="auth.js" path="C:\Users\Renata\Desktop\projetos_laboratoria\SAP010-burger-queen-api\controller\auth.js">
-        <metrics statements="21" coveredstatements="21" conditionals="8" coveredconditionals="8" methods="1" coveredmethods="1"/>
+        <metrics statements="20" coveredstatements="20" conditionals="8" coveredconditionals="8" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -42,171 +42,168 @@
         <line num="36" count="1" type="stmt"/>
         <line num="37" count="1" type="stmt"/>
         <line num="39" count="1" type="stmt"/>
-        <line num="40" count="1" type="stmt"/>
       </file>
       <file name="orders.js" path="C:\Users\Renata\Desktop\projetos_laboratoria\SAP010-burger-queen-api\controller\orders.js">
-        <metrics statements="62" coveredstatements="36" conditionals="28" coveredconditionals="14" methods="9" coveredmethods="8"/>
+        <metrics statements="62" coveredstatements="58" conditionals="28" coveredconditionals="24" methods="9" coveredmethods="9"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="44" count="2" type="stmt"/>
+        <line num="45" count="2" type="stmt"/>
+        <line num="54" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="81" count="1" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="89" count="3" type="stmt"/>
+        <line num="90" count="3" type="stmt"/>
+        <line num="93" count="3" type="cond" truecount="6" falsecount="0"/>
+        <line num="94" count="1" type="stmt"/>
+        <line num="98" count="2" type="stmt"/>
+        <line num="99" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="104" count="2" type="stmt"/>
+        <line num="112" count="2" type="stmt"/>
+        <line num="113" count="4" type="stmt"/>
+        <line num="114" count="4" type="stmt"/>
+        <line num="117" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="124" count="4" type="stmt"/>
+        <line num="128" count="2" type="stmt"/>
+        <line num="131" count="2" type="stmt"/>
+        <line num="141" count="2" type="stmt"/>
+        <line num="151" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="152" count="1" type="stmt"/>
+        <line num="156" count="2" type="stmt"/>
+        <line num="158" count="0" type="stmt"/>
+        <line num="164" count="4" type="stmt"/>
+        <line num="165" count="4" type="stmt"/>
+        <line num="166" count="4" type="stmt"/>
+        <line num="169" count="4" type="stmt"/>
+        <line num="172" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="173" count="1" type="stmt"/>
+        <line num="181" count="3" type="stmt"/>
+        <line num="184" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="185" count="1" type="stmt"/>
+        <line num="189" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="190" count="1" type="stmt"/>
+        <line num="194" count="1" type="stmt"/>
+        <line num="197" count="1" type="stmt"/>
+        <line num="200" count="1" type="stmt"/>
+        <line num="210" count="1" type="stmt"/>
+        <line num="212" count="1" type="stmt"/>
+        <line num="218" count="2" type="stmt"/>
+        <line num="219" count="2" type="stmt"/>
+        <line num="220" count="2" type="stmt"/>
+        <line num="223" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="224" count="1" type="stmt"/>
+        <line num="228" count="1" type="stmt"/>
+        <line num="231" count="1" type="stmt"/>
+        <line num="233" count="0" type="stmt"/>
+      </file>
+      <file name="products.js" path="C:\Users\Renata\Desktop\projetos_laboratoria\SAP010-burger-queen-api\controller\products.js">
+        <metrics statements="45" coveredstatements="41" conditionals="20" coveredconditionals="17" methods="6" coveredmethods="6"/>
         <line num="1" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
-        <line num="5" count="2" type="stmt"/>
-        <line num="6" count="2" type="stmt"/>
+        <line num="4" count="3" type="stmt"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="7" count="3" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="26" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="37" count="3" type="stmt"/>
+        <line num="43" count="3" type="stmt"/>
+        <line num="44" count="3" type="cond" truecount="6" falsecount="0"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="48" count="2" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="63" count="2" type="stmt"/>
+        <line num="69" count="2" type="stmt"/>
+        <line num="71" count="2" type="stmt"/>
+        <line num="73" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="77" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="78" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="79" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="80" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="82" count="1" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="91" count="1" type="stmt"/>
+        <line num="98" count="2" type="stmt"/>
+        <line num="99" count="2" type="stmt"/>
+        <line num="100" count="2" type="stmt"/>
+        <line num="102" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="103" count="1" type="stmt"/>
+        <line num="106" count="1" type="stmt"/>
+        <line num="108" count="1" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
+      </file>
+      <file name="users.js" path="C:\Users\Renata\Desktop\projetos_laboratoria\SAP010-burger-queen-api\controller\users.js">
+        <metrics statements="46" coveredstatements="39" conditionals="17" coveredconditionals="11" methods="6" coveredmethods="6"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="5" type="stmt"/>
+        <line num="7" count="5" type="stmt"/>
+        <line num="9" count="5" type="stmt"/>
         <line num="13" count="1" type="stmt"/>
-        <line num="20" count="1" type="stmt"/>
-        <line num="32" count="1" type="stmt"/>
+        <line num="15" count="4" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="28" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
         <line num="34" count="1" type="stmt"/>
         <line num="39" count="2" type="stmt"/>
         <line num="40" count="2" type="stmt"/>
-        <line num="41" count="2" type="stmt"/>
-        <line num="49" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="41" count="2" type="cond" truecount="5" falsecount="0"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
         <line num="50" count="0" type="stmt"/>
-        <line num="53" count="1" type="stmt"/>
-        <line num="62" count="1" type="stmt"/>
-        <line num="74" count="1" type="stmt"/>
-        <line num="76" count="1" type="stmt"/>
-        <line num="81" count="2" type="stmt"/>
-        <line num="82" count="2" type="stmt"/>
-        <line num="84" count="2" type="cond" truecount="6" falsecount="0"/>
-        <line num="85" count="1" type="stmt"/>
-        <line num="90" count="1" type="stmt"/>
-        <line num="91" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="92" count="0" type="stmt"/>
-        <line num="97" count="1" type="stmt"/>
-        <line num="104" count="1" type="stmt"/>
-        <line num="105" count="1" type="stmt"/>
-        <line num="106" count="1" type="stmt"/>
-        <line num="108" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="109" count="0" type="stmt"/>
-        <line num="114" count="1" type="stmt"/>
-        <line num="117" count="1" type="stmt"/>
-        <line num="119" count="0" type="stmt"/>
-        <line num="128" count="0" type="stmt"/>
-        <line num="137" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="138" count="0" type="stmt"/>
-        <line num="141" count="0" type="stmt"/>
-        <line num="143" count="2" type="stmt"/>
-        <line num="148" count="0" type="stmt"/>
-        <line num="149" count="0" type="stmt"/>
-        <line num="150" count="0" type="stmt"/>
-        <line num="152" count="0" type="stmt"/>
-        <line num="154" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="155" count="0" type="stmt"/>
-        <line num="162" count="0" type="stmt"/>
-        <line num="164" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="165" count="0" type="stmt"/>
-        <line num="168" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="169" count="0" type="stmt"/>
-        <line num="172" count="0" type="stmt"/>
-        <line num="174" count="0" type="stmt"/>
-        <line num="176" count="0" type="stmt"/>
-        <line num="185" count="0" type="stmt"/>
-        <line num="187" count="0" type="stmt"/>
-        <line num="192" count="1" type="stmt"/>
-        <line num="193" count="1" type="stmt"/>
-        <line num="194" count="1" type="stmt"/>
-        <line num="196" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="197" count="0" type="stmt"/>
-        <line num="200" count="1" type="stmt"/>
-        <line num="202" count="0" type="stmt"/>
-        <line num="204" count="1" type="stmt"/>
-      </file>
-      <file name="products.js" path="C:\Users\Renata\Desktop\projetos_laboratoria\SAP010-burger-queen-api\controller\products.js">
-        <metrics statements="48" coveredstatements="39" conditionals="24" coveredconditionals="14" methods="6" coveredmethods="6"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="5" count="3" type="stmt"/>
-        <line num="6" count="3" type="stmt"/>
-        <line num="8" count="3" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="14" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="16" count="1" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="23" count="2" type="stmt"/>
-        <line num="24" count="2" type="stmt"/>
-        <line num="25" count="2" type="stmt"/>
-        <line num="27" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="28" count="1" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="33" count="1" type="stmt"/>
-        <line num="38" count="3" type="stmt"/>
-        <line num="44" count="3" type="stmt"/>
-        <line num="45" count="3" type="cond" truecount="6" falsecount="0"/>
-        <line num="46" count="1" type="stmt"/>
-        <line num="49" count="2" type="stmt"/>
-        <line num="55" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
         <line num="57" count="1" type="stmt"/>
-        <line num="62" count="4" type="stmt"/>
-        <line num="64" count="4" type="cond" truecount="4" falsecount="0"/>
-        <line num="65" count="1" type="stmt"/>
-        <line num="68" count="2" type="stmt"/>
-        <line num="74" count="2" type="stmt"/>
-        <line num="76" count="1" type="stmt"/>
-        <line num="78" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="79" count="1" type="stmt"/>
-        <line num="82" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="83" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="84" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="85" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="87" count="0" type="stmt"/>
-        <line num="94" count="0" type="stmt"/>
-        <line num="96" count="1" type="stmt"/>
-        <line num="101" count="2" type="stmt"/>
-        <line num="102" count="2" type="stmt"/>
-        <line num="103" count="2" type="stmt"/>
-        <line num="105" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="106" count="1" type="stmt"/>
-        <line num="109" count="1" type="stmt"/>
-        <line num="111" count="1" type="stmt"/>
-        <line num="113" count="0" type="stmt"/>
-      </file>
-      <file name="users.js" path="C:\Users\Renata\Desktop\projetos_laboratoria\SAP010-burger-queen-api\controller\users.js">
-        <metrics statements="45" coveredstatements="29" conditionals="21" coveredconditionals="10" methods="5" coveredmethods="5"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="8" count="4" type="stmt"/>
-        <line num="9" count="4" type="stmt"/>
-        <line num="10" count="3" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="17" count="2" type="stmt"/>
-        <line num="18" count="2" type="stmt"/>
-        <line num="19" count="2" type="stmt"/>
-        <line num="21" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="22" count="1" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
-        <line num="27" count="2" type="stmt"/>
-        <line num="32" count="2" type="stmt"/>
-        <line num="33" count="2" type="stmt"/>
-        <line num="34" count="2" type="cond" truecount="5" falsecount="0"/>
-        <line num="35" count="1" type="stmt"/>
-        <line num="38" count="1" type="stmt"/>
-        <line num="43" count="0" type="stmt"/>
-        <line num="45" count="2" type="stmt"/>
-        <line num="50" count="3" type="stmt"/>
-        <line num="52" count="3" type="cond" truecount="3" falsecount="1"/>
-        <line num="53" count="1" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
-        <line num="57" count="0" type="stmt"/>
-        <line num="59" count="0" type="stmt"/>
-        <line num="61" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="62" count="0" type="stmt"/>
-        <line num="65" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="66" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="67" count="0" type="stmt"/>
-        <line num="69" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="71" count="0" type="stmt"/>
-        <line num="73" count="0" type="stmt"/>
-        <line num="75" count="0" type="stmt"/>
-        <line num="80" count="1" type="stmt"/>
-        <line num="81" count="1" type="stmt"/>
-        <line num="82" count="1" type="stmt"/>
-        <line num="84" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="85" count="0" type="stmt"/>
-        <line num="88" count="1" type="stmt"/>
-        <line num="90" count="0" type="stmt"/>
-        <line num="92" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="64" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="68" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="69" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="72" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="78" count="1" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="87" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="91" count="1" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="95" count="1" type="stmt"/>
       </file>
     </package>
   </project>

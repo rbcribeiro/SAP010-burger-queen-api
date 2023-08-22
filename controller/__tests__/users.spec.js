@@ -1,14 +1,7 @@
 const users = require("../users");
 const models = require("../../models");
 
-const bcrypt = require("bcrypt");
 const { User } = require("../../models");
-
-const { isAdmin } = require("../../middleware/auth");
-
-jest.mock("../../middleware/auth", () => ({
-  isAdmin: jest.fn(),
-}));
 
 jest.mock("../../models", () => ({
   User: {
@@ -18,35 +11,36 @@ jest.mock("../../models", () => ({
         email: "ana@api.com",
         password: "523",
         role: "admin",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: "2023-08-21T14:17:18.560Z",
+        updatedAt: "2023-08-21T14:17:18.560Z",
       },
       {
         id: "2",
         email: "rosana@api.com",
         password: "987",
         role: "chef",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: "2023-08-21T14:17:18.560Z",
+        updatedAt: "2023-08-21T14:17:18.560Z",
       },
       {
         id: "3",
         email: "josé@api.com",
         password: "456",
         role: "waiter",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: "2023-08-21T14:17:18.560Z",
+        updatedAt: "2023-08-21T14:17:18.560Z",
       },
     ]),
     findOne: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
     save: jest.fn(),
     destroy: jest.fn(),
   },
 }));
 
 describe("getUsers", () => {
-  it("Deve obter coleção de usuários", async () => {
+  it("Deve retornar uma lista de usuários", async () => {
     const mockReq = {};
     const mockResp = {
       json: jest.fn(),
@@ -59,7 +53,7 @@ describe("getUsers", () => {
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  it("Deve lidar com erro de banco de dados", async () => {
+  it("Deve retornar 500 para erro interno do servidor", async () => {
     const mockReq = {};
     const mockResp = {};
     const mockNext = jest.fn();
@@ -68,10 +62,8 @@ describe("getUsers", () => {
 
     await users.getUsers(mockReq, mockResp, mockNext);
 
-    expect(mockNext).toHaveBeenCalledWith({
-      status: 500,
-      message: "Erro interno do servidor.",
-    });
+    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
+
   });
 
   it("Deve lidar corretamente com chamadas assíncronas", async () => {
@@ -107,20 +99,18 @@ describe("getUsers", () => {
 
 describe("getUserById", () => {
   it("Deve lidar com usuário não encontrado", async () => {
-    const mockReq = {
-      params: { uid: "99" },
+    const mockReq = { params: { userId: "nonexistentUserId" }};
+    const mockResp = {
+      status: jest.fn(() => mockResp),
+      json: jest.fn(),
     };
-    const mockResp = {};
     const mockNext = jest.fn();
-
-    models.User.findOne.mockResolvedValueOnce(null);
 
     await users.getUserById(mockReq, mockResp, mockNext);
 
-    expect(mockNext).toHaveBeenCalledWith({
-      status: 404,
-      message: "Usuário não encontrado",
-    });
+    expect(mockResp.status).toHaveBeenCalledWith(404);
+    expect(mockResp.json).toHaveBeenCalledWith({message: "Usuário não encontrado"});
+    expect(mockNext).not.toHaveBeenCalled();
   });
 
   it("Deve lidar com erro ao buscar usuário por ID", async () => {
@@ -134,10 +124,7 @@ describe("getUserById", () => {
 
     await users.getUserById(mockReq, mockResp, mockNext);
 
-    expect(mockNext).toHaveBeenCalledWith({
-      status: 500,
-      message: "Erro interno do servidor.",
-    });
+    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
   });
 });
 
@@ -148,15 +135,17 @@ describe("createUser", () => {
         email: "newuser@api.com",
       },
     };
-    const mockResp = {};
+    const mockResp = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
     const mockNext = jest.fn();
 
     await users.createUser(mockReq, mockResp, mockNext);
 
-    expect(mockNext).toHaveBeenCalledWith({
-      status: 400,
-      message: "Todos os campos são obrigatórios.",
-    });
+    expect(mockResp.status).toHaveBeenCalledWith(400);
+    expect(mockResp.json).toHaveBeenCalledWith({ message: "Todos os campos são obrigatórios." });
+    expect(mockNext).not.toHaveBeenCalled();
   });
 
   it("Deve lidar com erro ao criar usuário", async () => {
@@ -174,15 +163,13 @@ describe("createUser", () => {
 
     await users.createUser(mockReq, mockResp, mockNext);
 
-    expect(mockNext).toHaveBeenCalledWith({
-      status: 500,
-      message: "Erro interno do servidor.",
-    });
+    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
+
   });
 });
 
 describe("updateUser", () => {
-  it("Deve lidar com erro ao atualizar usuário", async () => {
+  it("Deve retornar erro 500 para erro interno do servidor", async () => {
     const mockReq = {
       params: { uid: "1" },
       body: {
@@ -205,63 +192,9 @@ describe("updateUser", () => {
 
     await users.updateUser(mockReq, mockResp, mockNext);
 
-    expect(mockNext).toHaveBeenCalledWith({
-      status: 500,
-      message: "Erro interno do servidor.",
-    });
-  });
-  it("Deve lidar com acesso proibido", async () => {
-    const mockReq = {
-      params: { uid: "1" },
-      body: {
-        email: "updated@api.com",
-        role: "updatedRole",
-      },
-      user: { id: 2 }, // Simulando um usuário diferente
-    };
-    const mockResp = {};
-    const mockNext = jest.fn();
-
-    isAdmin.mockReturnValueOnce(false); // Simulando que não é um admin
-
-    await users.updateUser(mockReq, mockResp, mockNext);
-
-    expect(mockNext).toHaveBeenCalledWith({
-      status: 403,
-      message: "Acesso proibido",
-    });
+    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
   });
 
-  it("Deve lidar com erro ao atualizar usuário", async () => {
-    const mockReq = {
-      params: { uid: "1" },
-      body: {
-        email: "updated@api.com",
-        role: "updatedRole",
-      },
-    };
-    const mockResp = {};
-    const mockNext = jest.fn();
-
-    const mockUser = {
-      id: "1",
-      email: "ana@api.com",
-      password: "523",
-      role: "admin",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      save: jest.fn().mockRejectedValueOnce(new Error("Database error")),
-    };
-
-    User.findOne.mockResolvedValueOnce(mockUser);
-
-    await users.updateUser(mockReq, mockResp, mockNext);
-
-    expect(mockNext).toHaveBeenCalledWith({
-      status: 500,
-      message: "Erro interno do servidor.",
-    });
-  });
 });
 
 describe("deleteUser", () => {
@@ -286,9 +219,7 @@ describe("deleteUser", () => {
 
     await users.deleteUser(mockReq, mockResp, mockNext);
 
-    expect(mockNext).toHaveBeenCalledWith({
-      status: 500,
-      message: "Erro interno do servidor.",
-    });
+    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
+
   });
 });

@@ -36,7 +36,6 @@ module.exports = {
       const token = jwt.sign({ email: user.email, role: user.role }, secret, { expiresIn: '1h' });
       resp.status(200).json({ token });
     } catch (error) {
-      console.error('Erro ao autenticar usuário:', error);
       return resp.status(500).json({ message: 'Internal server error' });
     }
   },
