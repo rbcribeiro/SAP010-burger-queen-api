@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
 
-
 const initAdminUser = (app, next) => {
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
@@ -51,7 +50,10 @@ const createUser = async (req, resp, next) => {
   try {
     const { email, password, role } = req.body;
     if (!email || !password || !role) {
-      return next({ status: 400, message: 'Todos os campos são obrigatórios.' });
+      return next({
+        status: 400,
+        message: 'Todos os campos são obrigatórios.',
+      });
     }
 
     const newUser = await User.create({

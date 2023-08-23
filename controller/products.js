@@ -36,13 +36,12 @@ module.exports = {
   createProduct: async (req, resp, next) => {
     try {
       const {
-        name,
-        price,
-        image,
-        type,
+        name, price, image, type,
       } = req.body;
       if (!name || !price || !image || !type) {
-        return resp.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+        return resp
+          .status(400)
+          .json({ message: 'Todos os campos são obrigatórios.' });
       }
 
       const newProduct = await Product.create({
@@ -57,40 +56,37 @@ module.exports = {
     }
   },
 
-updateProduct: async (req, resp, next) => {
-  const uid = req.params.productId;
+  updateProduct: async (req, resp, next) => {
+    const uid = req.params.productId;
 
-  try {
-    const {
-      name,
-      price,
-      image,
-      type,
-    } = req.body;
+    try {
+      const {
+        name, price, image, type,
+      } = req.body;
 
-    const product = await Product.findOne({ where: { id: uid } });
+      const product = await Product.findOne({ where: { id: uid } });
 
-    if (!product) {
-      return resp.status(404).json({ message: 'Produto não encontrado.' });
+      if (!product) {
+        return resp.status(404).json({ message: 'Produto não encontrado.' });
+      }
+
+      product.name = name || product.name;
+      product.price = price || product.price;
+      product.image = image || product.image;
+      product.type = type || product.type;
+
+      await product.update({
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        type: product.type,
+      });
+
+      resp.status(200).json(product);
+    } catch (error) {
+      handleServerError(req, resp, next);
     }
-
-    product.name = name || product.name;
-    product.price = price || product.price;
-    product.image = image || product.image;
-    product.type = type || product.type;
-
-    await product.update({
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      type: product.type,
-    });
-
-    resp.status(200).json(product);
-  } catch (error) {
-    handleServerError(req, resp, next);
-  }
-},
+  },
 
   deleteProduct: async (req, resp, next) => {
     try {

@@ -4,7 +4,7 @@ const authMiddleware = require('./middleware/auth');
 const errorHandler = require('./middleware/error');
 const routes = require('./routes');
 const pkg = require('./package.json');
-const sequelize = require('./database'); // Import the configured Sequelize instance from database.js
+const sequelize = require('./database');
 
 const { port, secret } = config;
 const app = express();
@@ -23,7 +23,8 @@ routes(app, (err) => {
 
   app.use(errorHandler);
 
-  sequelize.sync() 
+  sequelize
+    .sync()
     .then(() => {
       app.listen(port, () => {
         console.info(`App listening on port ${port}`);

@@ -16,7 +16,9 @@ module.exports = {
         client: order.client,
         status: order.status,
         dateEntry: order.dateEntry,
-        ...(order.status === 'Concluído' && { dateProcessed: order.dateProcessed }),
+        ...(order.status === 'Concluído' && {
+          dateProcessed: order.dateProcessed,
+        }),
         Products: order.Products.map((product) => ({
           id: product.id,
           name: product.name,
@@ -82,12 +84,16 @@ module.exports = {
       const { userId, client, products } = req.body;
 
       if (!userId || !client || !products || !products.length) {
-        return resp.status(400).json({ message: 'Dados incompletos na requisição.' });
+        return resp
+          .status(400)
+          .json({ message: 'Dados incompletos na requisição.' });
       }
 
       const existingUser = await User.findByPk(userId);
       if (!existingUser) {
-        return resp.status(404).json({ message: `Usuário com ID ${userId} não encontrado.` });
+        return resp
+          .status(404)
+          .json({ message: `Usuário com ID ${userId} não encontrado.` });
       }
 
       const order = await Order.create({
@@ -149,7 +155,7 @@ module.exports = {
 
       if (!allowedStatusValues.includes(status)) {
         return resp.status(400).json({
-          message: `O valor do campo 'status' deve ser um dos seguintes: ${allowedStatusValues.join(
+          message: `O valor do campo status deve ser um dos seguintes: ${allowedStatusValues.join(
             ', ',
           )}`,
         });
@@ -178,7 +184,6 @@ module.exports = {
         dateProcessed: order.dateProcessed,
       };
 
-
       resp.status(200).json(responseOrder);
     } catch (error) {
       next(error);
@@ -190,14 +195,11 @@ module.exports = {
       const { orderId } = req.params;
       const order = await Order.findOne({ where: { id: orderId } });
 
-
       if (!order) {
         return resp.status(404).json({ message: 'Ordem não encontrada' });
       }
 
-
       await order.destroy();
-
 
       resp.status(200).json({ message: 'Ordem excluída com sucesso!' });
     } catch (error) {
