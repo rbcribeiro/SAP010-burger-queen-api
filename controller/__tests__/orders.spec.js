@@ -24,8 +24,10 @@ jest.mock("../../models", () => ({
   },
 }));
 
+jest.mock('../../models');
+
 describe("getOrders", () => {
-  it("should return a list of orders with processed date", async () => {
+  it("deve retornar uma lista de pedidos com data processada", async () => {
     // Arrange
     const ordersMock = {
       id: 1,
@@ -62,7 +64,7 @@ describe("getOrders", () => {
     expect(nextMock).not.toHaveBeenCalled();
   });
 
-  it("should handle errors and call next", async () => {
+  it("deve lidar com erros e chamar a seguir", async () => {
     // Arrange
     Order.findAll.mockRejectedValue(new Error("Mocked error"));
 
@@ -79,7 +81,7 @@ describe("getOrders", () => {
 });
 
 describe("getOrderById", () => {
-  it("should return an order by ID", async () => {
+  it("deve retornar um pedido por ID", async () => {
     // Arrange
     const orderMock = {
       id: 1,
@@ -137,7 +139,7 @@ describe("getOrderById", () => {
     expect(nextMock).not.toHaveBeenCalled();
   });
 
-  it("should handle order not found", async () => {
+  it("deve tratar o pedido não encontrado", async () => {
     // Arrange
     Order.findOne.mockResolvedValue(null);
 
@@ -162,6 +164,48 @@ describe("getOrderById", () => {
 });
 
 describe("createOrder", () => {
+  beforeEach(() => {
+    jest.clearAllMocks(); // Limpa todos os mocks
+  });
+
+  it("deve incluir dateProcessed no pedido com status Concluído", async () => {
+    const orderMock = {
+      id: 1,
+      userId: 123,
+      client: "Cliente Teste",
+      status: "Concluído",
+      dateEntry: new Date(),
+      dateProcessed: new Date(),
+      Products: [
+        {
+          id: 101,
+          name: "Product 1",
+          price: 10,
+          image: "product1.jpg",
+          type: "Food",
+          OrderProducts: {
+            quantity: 2,
+          },
+        },
+      ],
+    };
+    Order.findOne.mockResolvedValue(orderMock);
+  
+    const reqMock = { params: { orderId: 1 } };
+    const respMock = { json: jest.fn() };
+    const nextMock = jest.fn();
+  
+    await getOrderById(reqMock, respMock, nextMock);
+  
+    expect(respMock.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // ... (other fields)
+        dateProcessed: orderMock.dateProcessed,
+      })
+    );
+    expect(nextMock).not.toHaveBeenCalled();
+  });
+
   it("cria uma nova ordem corretamente (com dateProcessed)", async () => {
     const mockExistingUser = { id: 1, name: "Usuário Teste" };
     const mockProduct1 = { id: 1, name: "Produto 1" };
@@ -264,7 +308,6 @@ describe("createOrder", () => {
       client: "Cliente Teste",
       status: "Pendente",
       dateEntry: new Date(),
-      dateProcessed: null,
       Products: [],
     };
   
@@ -291,15 +334,15 @@ describe("createOrder", () => {
     await createOrder(mockRequest, mockResponse, mockNext);
   
     expect(User.findByPk).toHaveBeenCalledWith(mockExistingUser.id);
-    expect(Order.create).toHaveBeenCalledWith(expect.objectContaining({
+    expect(Order.create).toHaveBeenCalledWith({
       userId: mockExistingUser.id,
       client: "Cliente Teste",
       status: "Pendente",
       dateEntry: expect.any(Date),
-    }));
+    });
     expect(Product.findByPk).toHaveBeenCalledWith(1);
     expect(Product.findByPk).toHaveBeenCalledWith(2);
-
+  
     expect(mockResponse.status).toHaveBeenCalledWith(201);
     expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -309,35 +352,146 @@ describe("createOrder", () => {
         status: "Pendente",
         dateEntry: expect.any(Date),
         Products: expect.any(Array),
-        dateProcessed: null,
       })
     );
-
+  
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  it("lida corretamente com erros", async () => {
-    const mockError = new Error("Erro de teste");
-  User.findByPk = jest.fn().mockRejectedValue(mockError);
+  it('deve retornar o status 400 com mensagem de erro para dados incompletos', async () => {
 
-  const mockRequest = {
-    body: {
+    const req = { body: {} };
+    const resp = {
+      status: jest.fn(() => resp),
+      json: jest.fn(),
+    };
+    const next = jest.fn();
+
+    await createOrder(req, resp, next);
+
+    // Assertions
+    expect(resp.status).toHaveBeenCalledWith(400);
+    expect(resp.json).toHaveBeenCalledWith({ message: 'Dados incompletos na requisição.' });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('deve incluir dateProcessed em responseOrder quando dateProcessed não for nulo', async () => {
+    const mockOrderWithProducts = {
+      id: 1,
+      userId: 123,
+      client: 'Client Name',
+      status: 'Pendente',
+      dateEntry: new Date(),
+      dateProcessed: new Date(),
+      Products: [],
+    };
+
+    const mockFindOrCreate = jest.fn(() => mockOrderWithProducts);
+    Order.findByPk = mockFindOrCreate;
+
+    // Mocking request and response objects
+    const req = { body: {
+        userId: 123,
+        client: 'Client Name',
+        products: [
+          { qty: 2, product: { id: 1 } },
+          { qty: 3, product: { id: 2 } },
+          // ... outros produtos
+        ],
+      },
+    };
+    const resp = {
+      status: jest.fn(() => resp),
+      json: jest.fn(),
+    };
+    const next = jest.fn();
+
+    // Calling the function
+    await createOrder(req, resp, next);
+
+    // Assertions
+    expect(mockFindOrCreate).toHaveBeenCalled();
+    expect(resp.status).toHaveBeenCalledWith(201);
+    expect(resp.json).toHaveBeenCalledWith(expect.objectContaining({ dateProcessed: expect.any(Date) }));
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('não deve incluir dateProcessed em responseOrder quando dateProcessed for nulo', async () => {
+    const mockOrderWithProducts = {
+      id: 1,
+      userId: 123,
+      client: 'Client Name',
+      status: 'Pendente',
+      dateEntry: new Date(),
+      dateProcessed: null,
+      Products: [],
+    };
+
+    const mockFindOrCreate = jest.fn(() => mockOrderWithProducts);
+    Order.findByPk = mockFindOrCreate;
+
+    const req = {  body: {
+        userId: 123,
+        client: 'Client Name',
+        products: [
+          { qty: 2, product: { id: 1 } },
+          { qty: 3, product: { id: 2 } },
+          // ... outros produtos
+        ],
+      },
+    };
+    const resp = {
+      status: jest.fn(() => resp),
+      json: jest.fn(),
+    };
+    const next = jest.fn();
+
+    await createOrder(req, resp, next);
+
+    // Assertions
+    expect(mockFindOrCreate).toHaveBeenCalled();
+    expect(resp.status).toHaveBeenCalledWith(201);
+    expect(resp.json).toHaveBeenCalledWith(expect.not.objectContaining({ dateProcessed: expect.any(Date) }));
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('deve retornar 404 e uma mensagem quando um produto não for encontrado', async () => {
+
+    const mockRequest = {
+      body: {
+        userId: 1,
+        client: 'Cliente Teste',
+        products: [
+          { qty: 2, product: { id: 999 } },
+        ],
+      },
+    };
+    const mockResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    User.findByPk.mockResolvedValue({});
+    Product.findByPk.mockResolvedValue(null);
+
+    Order.create.mockResolvedValue({
+      id: 1,
       userId: 1,
-      client: "Cliente Teste",
-      products: [],
-    },
-  };
-  const mockResponse = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn(),
-  };
-  const mockNext = jest.fn();
+      client: 'Cliente Teste',
+      status: 'Pendente',
+      dateEntry: new Date(),
+      addProduct: jest.fn(),
+    });
 
-  await createOrder(mockRequest, mockResponse, mockNext);
+    await createOrder(mockRequest, mockResponse, jest.fn());
 
-  expect(mockNext).toHaveBeenCalledWith(expect.objectContaining({
-    message: "Erro de teste",
-  }));
+    expect(User.findByPk).toHaveBeenCalledWith(mockRequest.body.userId);
+    expect(Product.findByPk).toHaveBeenCalledWith(mockRequest.body.products[0].product.id);
+    expect(Order.create).toHaveBeenCalled();
+    expect(mockResponse.status).toHaveBeenCalledWith(404);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: `Produto com ID ${mockRequest.body.products[0].product.id} não encontrado.`,
+    });
   });
 
   it('deve chamar o próximo middleware em caso de erro', async () => {
@@ -361,7 +515,36 @@ describe("createOrder", () => {
     expect(mockNext).toHaveBeenCalledWith(new Error('Erro de teste'));
   });
 
+  it('deve retornar 404 e uma mensagem quando o usuário não for encontrado', async () => {
+
+    const mockRequest = {
+      body: {
+        userId: 999,
+        client: 'Cliente Teste',
+        products: [
+          { qty: 2, product: { id: 1 } },
+          { qty: 1, product: { id: 2 } },
+        ],
+      },
+    };
+    const mockResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    User.findByPk.mockResolvedValue(null);
+
+    await createOrder(mockRequest, mockResponse, jest.fn());
+
+    expect(User.findByPk).toHaveBeenCalledWith(mockRequest.body.userId);
+    expect(mockResponse.status).toHaveBeenCalledWith(404);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: `Usuário com ID ${mockRequest.body.userId} não encontrado.`,
+    });
+  });
+
 });
+
   describe("updateOrder", () => {
     it("atualiza o status de uma ordem corretamente", async () => {
       const mockOrder = {
@@ -467,7 +650,7 @@ describe("createOrder", () => {
       expect(mockNext).toHaveBeenCalledWith(mockError);
     });
   
-    it('should update the status of an order', async () => {
+    it('deve atualizar o status de um pedido', async () => {
       const orderId = 1;
       const status = 'Processando';
       const allowedStatusValues = ['Pendente', 'Processando', 'Concluído'];
@@ -510,7 +693,7 @@ describe("createOrder", () => {
       expect(orderMock.save).toHaveBeenCalled();
     });
   
-    it('should handle invalid status value', async () => {
+    it('deve lidar com valor de status inválido', async () => {
       const orderId = 1;
       const invalidStatus = 'InvalidStatus';
       const allowedStatusValues = ['Pendente', 'Processando', 'Concluído'];
@@ -571,7 +754,7 @@ describe("createOrder", () => {
         json: jest.fn(),
       };
       const mockNext = jest.fn();
-  
+
       await deleteOrder(mockReq, mockResp, mockNext);
   
       expect(mockFindOne).toHaveBeenCalledWith({ where: { id: 1 } });
