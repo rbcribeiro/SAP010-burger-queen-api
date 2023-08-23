@@ -1,4 +1,3 @@
-// middleware/auth.js
 const jwt = require('jsonwebtoken');
 
 module.exports = (secrets) => (req, resp, next) => {
@@ -28,19 +27,16 @@ module.exports = (secrets) => (req, resp, next) => {
   });
 };
 
-// Verifica se o usuário está autenticado
 module.exports.isAuthenticated = (req) => {
   const { user } = req;
   return user !== undefined;
 };
 
-// Verifica se o usuário possui a role "admin"
 module.exports.isAdmin = (req) => {
   const { user } = req;
   return user && user.role && user.role === 'admin';
 };
 
-// Requer autenticação para acessar rotas protegidas
 module.exports.requireAuth = (req, resp, next) => {
   if (!module.exports.isAuthenticated(req)) {
     return resp.status(401).send('Autenticação necessária');
@@ -48,7 +44,6 @@ module.exports.requireAuth = (req, resp, next) => {
   next();
 };
 
-// Requer autenticação e que o usuário seja admin para acessar rotas protegidas pelo admin
 module.exports.requireAdmin = (req, resp, next) => {
   if (!module.exports.isAuthenticated(req)) {
     return resp.status(401).send('Autenticação necessária');

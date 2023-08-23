@@ -1,15 +1,15 @@
 const bcrypt = require('bcrypt');
 
-const saltRounds = 10; // Número de saltos (rounds) de criptografia
+const saltRounds = 10;
 
 module.exports = {
   up: async (queryInterface) => {
-    const plaintextPassword = 'admin'; // Senha em texto plano
+    const plaintextPassword = 'admin';
     const hashedPassword = bcrypt.hashSync(plaintextPassword, saltRounds);
 
     const userData = {
       email: 'admin@api.com',
-      password: hashedPassword, // Salve o hash da senha no banco de dados
+      password: hashedPassword,
       role: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
