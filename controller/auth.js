@@ -6,7 +6,7 @@ const { secret } = require('../config');
 
 module.exports = {
   postAuth: async (req, resp, next) => {
-    console.info('Received login request');
+    // console.info('Received login request');
     const { email, password } = req.body;
 
     if (!email || !password) {
