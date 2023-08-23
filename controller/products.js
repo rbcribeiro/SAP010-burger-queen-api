@@ -92,8 +92,6 @@ updateProduct: async (req, resp, next) => {
   }
 },
 
-  
-
   deleteProduct: async (req, resp, next) => {
     try {
       const uid = req.params.productId;
