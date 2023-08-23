@@ -38,7 +38,7 @@ const getUserById = async (req, resp, next) => {
     const user = await User.findOne({ where: { id: uid } });
 
     if (!user) {
-      return next({ status: 404, message: 'Usuário não encontrado' });
+      return resp.status(404).json({ message: 'Usuário não encontrado' });
     }
 
     resp.status(200).json(user);
@@ -74,7 +74,7 @@ const updateUser = async (req, resp, next) => {
     const user = await User.findOne({ where: { id: uid } });
 
     if (!user) {
-      return next({ status: 404, message: 'Usuário não encontrado' });
+      return resp.status(404).json({ message: 'Usuário não encontrado' });
     }
 
     user.email = email || user.email;
@@ -97,7 +97,7 @@ const deleteUser = async (req, resp, next) => {
     const user = await User.findOne({ where: { id: uid } });
 
     if (!user) {
-      return next({ status: 404, message: 'Usuário não encontrado' });
+      return resp.status(404).json({ message: 'Usuário não encontrado' });
     }
 
     await user.destroy();

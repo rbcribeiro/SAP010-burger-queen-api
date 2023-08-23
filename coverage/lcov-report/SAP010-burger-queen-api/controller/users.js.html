@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>45/54</span>
+                <span class='fraction'>54/54</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">61.9% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>13/21</span>
+                <span class='fraction'>18/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>45/54</span>
+                <span class='fraction'>54/54</span>
             </div>
         
             
@@ -186,23 +186,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -262,8 +262,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -272,20 +270,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -303,24 +303,24 @@
 const { User } = require('../models');
 &nbsp;
 &nbsp;
-const initAdminUser = <span class="fstat-no" title="function not covered" >(a</span>pp, next) =&gt; {
-  const { adminEmail, adminPassword } = <span class="cstat-no" title="statement not covered" >app.get('config');</span>
-<span class="cstat-no" title="statement not covered" >  if (!adminEmail || !adminPassword) {</span>
-<span class="cstat-no" title="statement not covered" >    return next();</span>
+const initAdminUser = (app, next) =&gt; {
+  const { adminEmail, adminPassword } = app.get('config');
+  if (!adminEmail || !adminPassword) {
+    return next();
   }
 &nbsp;
-  const adminUser = <span class="cstat-no" title="statement not covered" >{</span>
+  const adminUser = {
     email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),
     role: 'admin',
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  User.findOrCreate({</span>
+  User.findOrCreate({
     where: { email: adminUser.email },
     defaults: adminUser,
   });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  next();</span>
+  next();
 };
 &nbsp;
 const getUsers = async (req, resp, next) =&gt; {
@@ -339,7 +339,7 @@ const getUserById = async (req, resp, next) =&gt; {
     const user = await User.findOne({ where: { id: uid } });
 &nbsp;
     if (!user) {
-      return next({ status: 404, message: 'Usuário não encontrado' });
+      return resp.status(404).json({ message: 'Usuário não encontrado' });
     }
 &nbsp;
     resp.status(200).json(user);
@@ -375,12 +375,12 @@ const updateUser = async (req, resp, next) =&gt; {
     const user = await User.findOne({ where: { id: uid } });
 &nbsp;
     if (!user) {
-      return next({ status: 404, message: 'Usuário não encontrado' });
+      return resp.status(404).json({ message: 'Usuário não encontrado' });
     }
 &nbsp;
     user.email = email || <span class="branch-1 cbranch-no" title="branch not covered" >user.email;</span>
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (password) {
-<span class="cstat-no" title="statement not covered" >      user.password = bcrypt.hashSync(password, 10);</span>
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (password) {
+      user.password = bcrypt.hashSync(password, 10);
     }
     user.role = role || <span class="branch-1 cbranch-no" title="branch not covered" >user.role;</span>
 &nbsp;
@@ -397,13 +397,13 @@ const deleteUser = async (req, resp, next) =&gt; {
     const { uid } = req.params;
     const user = await User.findOne({ where: { id: uid } });
 &nbsp;
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!user) {
-<span class="cstat-no" title="statement not covered" >      return next({ status: 404, message: 'Usuário não encontrado' });</span>
+    if (!user) {
+      return resp.status(404).json({ message: 'Usuário não encontrado' });
     }
 &nbsp;
     await user.destroy();
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    resp.status(200).json({ message: 'Usuário excluído com sucesso!' });</span>
+    resp.status(200).json({ message: 'Usuário excluído com sucesso!' });
   } catch (error) {
     next({ status: 500, message: 'Erro interno do servidor.' });
   }
@@ -424,7 +424,7 @@ module.exports = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-08-23T18:11:02.551Z
+
             </div>
         <script src="../../prettify.js"></script>
         <script>
