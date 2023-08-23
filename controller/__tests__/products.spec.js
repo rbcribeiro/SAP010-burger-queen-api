@@ -33,7 +33,20 @@ jest.mock("../../models", () => ({
         updatedAt: "2023-08-22T01:18:01.014Z",
       },
     ]),
-    findOne: jest.fn(),
+    findOne: jest.fn((options) => {
+      if (options.where.id === 10) {
+        return null; 
+      }
+      return {
+        id: 1,
+        name: "Hamburguer Clássico",
+        price: "10.99",
+        image: "url_da_imagem",
+        type: "almoço",
+        createdAt: "2023-08-21T14:17:18.582Z",
+        updatedAt: "2023-08-21T14:17:18.582Z",
+      };
+    }),
     create: jest.fn(),
     update: jest.fn(),
     save: jest.fn(),
@@ -54,11 +67,67 @@ describe("getProducts", () => {
     expect(mockResp.json).toHaveBeenCalled();
     expect(mockNext).not.toHaveBeenCalled();
   });
+  it("Deve retornar erro 500 para erro interno do servidor", async () => {
+    const mockReq = {};
+    const mockResp = {};
+    const mockNext = jest.fn();
+
+    models.Product.findAll.mockRejectedValueOnce(new Error("Database error"));
+
+    await products.getProducts(mockReq, mockResp, mockNext);
+
+    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
+
+  });
 });
 
 describe("getProductById", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('Deve retornar um produto existente com status 200 e o produto no JSON', async () => {
+    const req = { params: { productId: 1 } };
+    console.log("Req:", req);
+  
+    const mockProduct = {
+      id: 1,
+      name: "Hamburguer Clássico",
+      price: "10.99",
+      image: "url_da_imagem",
+      type: "almoço",
+      createdAt: "2023-08-21T14:17:18.582Z",
+      updatedAt: "2023-08-21T14:17:18.582Z",
+    };
+  
+    models.Product.findOne.mockResolvedValue(mockProduct);
+  
+    const mockResp = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    const mockNext = jest.fn();
+  
+    await products.getProductById(req, mockResp, mockNext);
+  
+    expect(models.Product.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+    console.log("MockResp status foi chamado com:", mockResp.status.mock.calls);
+    console.log("MockResp json foi chamado com:", mockResp.json.mock.calls);
+    console.log("MockNext foi chamado:", mockNext.mock.calls);
+    expect(mockResp.status).toHaveBeenCalledWith(200);
+    expect(mockResp.json).toHaveBeenCalledWith(mockProduct);
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+
+
+  
+
+
+
   it("Deve lidar com produto não encontrado", async () => {
     const mockReq = {params: { productId: "99" }};
+    models.Product.findOne.mockResolvedValue(null);
+
     const mockResp = {
       status: jest.fn(() => mockResp),
       json: jest.fn(),
@@ -79,7 +148,7 @@ describe("getProductById", () => {
 
     models.Product.findAll.mockRejectedValueOnce(new Error("Database error"));
 
-    await products.getProducts(mockReq, mockResp, mockNext);
+    await products.getProductById(mockReq, mockResp, mockNext);
 
     expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
 
@@ -87,6 +156,7 @@ describe("getProductById", () => {
 });
 
 describe("createProduct", () => {
+  
   it("deve criar um novo produto com sucesso", async () => {
     const mockNewProduct = {
       id: 1,
@@ -160,6 +230,51 @@ describe("createProduct", () => {
 });
 
 describe("updateProduct", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  it('Deve atualizar um produto existente com status 200 e o produto no JSON', async () => {
+    const req = {
+      params: { productId: 1 },
+      body: {
+        name: "Novo Nome",
+        price: "9.99",
+        image: "nova_url_da_imagem",
+        type: "lanche",
+      },
+    };
+      
+    const mockProduct = {
+      id: 1,
+      name: "Frango ",
+      price: "36.36",
+      image: "url_da_imagem",
+      type: "almoço",
+      update: jest.fn(),
+    };
+  
+    models.Product.findOne.mockResolvedValue(mockProduct);
+  
+    const mockResp = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    const mockNext = jest.fn();
+  
+    await products.updateProduct(req, mockResp, mockNext);
+  
+    expect(models.Product.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+    expect(mockProduct.update).toHaveBeenCalledWith({
+      name: req.body.name,
+      price: req.body.price,
+      image: req.body.image,
+      type: req.body.type,
+    });
+    expect(mockResp.status).toHaveBeenCalledWith(200);
+    expect(mockResp.json).toHaveBeenCalledWith(mockProduct);
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+  
   it("Deve lidar com erro ao buscar usuário por ID", async () => {
     models.Product.findOne.mockResolvedValue(null);
 
@@ -276,5 +391,18 @@ describe("deleteProduct", () => {
     expect(mockResp.json).toHaveBeenCalledWith({
       message: "Produto não encontrado",
     });
+  });
+  
+  it("Deve retornar erro 500 para erro interno do servidor", async () => {
+    const mockReq = {};
+    const mockResp = {};
+    const mockNext = jest.fn();
+
+    models.Product.findAll.mockRejectedValueOnce(new Error("Database error"));
+
+    await products.deleteProduct(mockReq, mockResp, mockNext);
+
+    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
+
   });
 });
