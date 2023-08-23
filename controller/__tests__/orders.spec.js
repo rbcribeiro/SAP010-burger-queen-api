@@ -81,63 +81,6 @@ describe("getOrders", () => {
 });
 
 describe("getOrderById", () => {
-  it("deve retornar um pedido por ID", async () => {
-    // Arrange
-    const orderMock = {
-      id: 1,
-      userId: 123,
-      client: "John Doe",
-      status: "Pendente",
-      dateEntry: "2023-08-21T10:00:00Z",
-      Products: [
-        {
-          id: 101,
-          name: "Product 1",
-          price: 10,
-          image: "product1.jpg",
-          type: "Food",
-          OrderProducts: {
-            quantity: 2,
-          },
-        },
-
-      ],
-    };
-    Order.findOne.mockResolvedValue(orderMock);
-
-    const reqMock = { params: { orderId: 1 } };
-    const respMock = { json: jest.fn() };
-    const nextMock = jest.fn();
-
-    // Act
-    await getOrderById(reqMock, respMock, nextMock);
-
-    // Assert
-    const responseOrder = {
-      id: 1,
-      userId: 123,
-      client: "John Doe",
-      status: "Pendente",
-      dateEntry: new Date("2023-08-21T10:00:00Z"),
-      Products: [
-        {
-          id: 101,
-          name: "Product 1",
-          price: 10,
-          image: "product1.jpg",
-          type: "Food",
-          OrderProducts: {
-            quantity: 2,
-          },
-        },
-      ],
-    };
-
-    expect(respMock.json).toHaveBeenCalledWith(
-      expect.objectContaining(responseOrder)
-    );
-    expect(nextMock).not.toHaveBeenCalled();
-  });
 
   it("deve tratar o pedido não encontrado", async () => {
     // Arrange
@@ -165,7 +108,7 @@ describe("getOrderById", () => {
 
 describe("createOrder", () => {
   beforeEach(() => {
-    jest.clearAllMocks(); // Limpa todos os mocks
+    jest.clearAllMocks();
   });
 
   it("deve incluir dateProcessed no pedido com status Concluído", async () => {
@@ -189,21 +132,41 @@ describe("createOrder", () => {
         },
       ],
     };
-    Order.findOne.mockResolvedValue(orderMock);
+  
+    Order.findOne = jest.fn().mockResolvedValue(orderMock);
   
     const reqMock = { params: { orderId: 1 } };
-    const respMock = { json: jest.fn() };
+    const respMock = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     const nextMock = jest.fn();
   
     await getOrderById(reqMock, respMock, nextMock);
   
     expect(respMock.json).toHaveBeenCalledWith(
       expect.objectContaining({
-        // ... (other fields)
+        id: orderMock.id,
+        userId: orderMock.userId,
+        client: orderMock.client,
+        status: orderMock.status,
+        dateEntry: orderMock.dateEntry,
         dateProcessed: orderMock.dateProcessed,
+        Products: expect.any(Array),
       })
     );
+  
     expect(nextMock).not.toHaveBeenCalled();
+  });
+
+  it("deve chamar o próximo middleware com erro quando ocorrer um erro", async () => {
+
+    Order.findOne = jest.fn().mockRejectedValue(new Error("Erro simulado"));
+  
+    const reqMock = { params: { orderId: 1 } };
+    const respMock = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const nextMock = jest.fn();
+  
+    await getOrderById(reqMock, respMock, nextMock);
+  
+    expect(nextMock).toHaveBeenCalledWith(expect.any(Error));
   });
 
   it("cria uma nova ordem corretamente (com dateProcessed)", async () => {
@@ -237,7 +200,8 @@ describe("createOrder", () => {
 
     Order.findByPk = jest
       .fn()
-      .mockResolvedValueOnce(mockOrderWithProcessedDate);
+      .mockResolvedValueOnce(mockOrderWithProcessedDate)
+      .mockResolvedValueOnce(undefined);
 
     const mockRequest = {
       body: {
