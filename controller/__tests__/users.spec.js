@@ -1,5 +1,8 @@
+const bcrypt = require('bcrypt');
 const users = require("../users");
 const models = require("../../models");
+
+const UsersController = require('../users');
 
 const { User } = require("../../models");
 
@@ -38,6 +41,9 @@ jest.mock("../../models", () => ({
     destroy: jest.fn(),
   },
 }));
+
+jest.mock('../../models');
+jest.mock('bcrypt');
 
 describe("getUsers", () => {
   it("Deve retornar uma lista de usuários", async () => {
@@ -97,104 +103,153 @@ describe("getUsers", () => {
   });
 });
 
-describe("getUserById", () => {
-  it("Deve lidar com usuário não encontrado", async () => {
-    const mockReq = { params: { userId: "nonexistentUserId" }};
-    const mockResp = {
-      status: jest.fn(() => mockResp),
-      json: jest.fn(),
-    };
-    const mockNext = jest.fn();
+describe('getUserById', () => {
+  it('should get user by id', async () => {
+    const mockUser = { id: 1, email: 'user@example.com', role: 'user' };
+    User.findOne.mockResolvedValue(mockUser);
 
-    await users.getUserById(mockReq, mockResp, mockNext);
+    const req = { params: { userId: 1 } };
+    const resp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
 
-    expect(mockResp.status).toHaveBeenCalledWith(404);
-    expect(mockResp.json).toHaveBeenCalledWith({message: "Usuário não encontrado"});
-    expect(mockNext).not.toHaveBeenCalled();
+    await UsersController.getUserById(req, resp, next);
+
+    expect(User.findOne).toHaveBeenCalledWith({ where: { id: req.params.userId } });
+    expect(resp.status).toHaveBeenCalledWith(200);
+    expect(resp.json).toHaveBeenCalledWith(mockUser);
+    expect(next).not.toHaveBeenCalled();
   });
 
-  it("Deve lidar com erro ao buscar usuário por ID", async () => {
-    const mockReq = {
-      params: { uid: "1" },
-    };
-    const mockResp = {};
-    const mockNext = jest.fn();
+  it('should handle user not found', async () => {
+    User.findOne.mockResolvedValue(null);
 
-    models.User.findOne.mockRejectedValueOnce(new Error("Database error"));
+    const req = { params: { userId: 1 } };
+    const resp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
 
-    await users.getUserById(mockReq, mockResp, mockNext);
+    await UsersController.getUserById(req, resp, next);
 
-    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
-  });
-});
-
-describe("createUser", () => {
-  it("Deve lidar com campos obrigatórios ausentes", async () => {
-    const mockReq = {
-      body: {
-        email: "newuser@api.com",
-      },
-    };
-    const mockResp = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    const mockNext = jest.fn();
-
-    await users.createUser(mockReq, mockResp, mockNext);
-
-    expect(mockResp.status).toHaveBeenCalledWith(400);
-    expect(mockResp.json).toHaveBeenCalledWith({ message: "Todos os campos são obrigatórios." });
-    expect(mockNext).not.toHaveBeenCalled();
+    expect(User.findOne).toHaveBeenCalledWith({ where: { id: req.params.userId } });
+    expect(resp.status).toHaveBeenCalledWith(404);
+    expect(resp.json).toHaveBeenCalledWith({ message: 'Usuário não encontrado' });
+    expect(next).not.toHaveBeenCalled();
   });
 
-  it("Deve lidar com erro ao criar usuário", async () => {
-    const mockReq = {
-      body: {
-        email: "newuser@api.com",
-        password: "newpassword",
-        role: "user",
-      },
-    };
-    const mockResp = {};
-    const mockNext = jest.fn();
+  it('should handle errors', async () => {
+    const mockError = new Error('Database error');
+    User.findOne.mockRejectedValue(mockError);
 
-    models.User.create.mockRejectedValueOnce(new Error("Database error"));
+    const req = { params: { userId: 1 } };
+    const resp = {};
+    const next = jest.fn();
 
-    await users.createUser(mockReq, mockResp, mockNext);
+    await UsersController.getUserById(req, resp, next);
 
-    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
-
+    expect(next).toHaveBeenCalledWith({ status: 500, message: mockError.message });
   });
 });
 
-describe("updateUser", () => {
-  it("Deve retornar erro 500 para erro interno do servidor", async () => {
-    const mockReq = {
-      params: { uid: "1" },
-      body: {
-        email: "updated@api.com",
-        role: "updatedRole",
-      },
-    };
-    const mockResp = {};
-    const mockNext = jest.fn();
+describe('createUser', () => {
+  it('should create a new user', async () => {
+    const mockUser = { id: 1, email: 'user@example.com', role: 'user' };
+    const req = { body: { email: 'user@example.com', password: 'password', role: 'user' } };
+    const resp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
 
-    models.User.findOne.mockResolvedValueOnce({
-      id: "1",
-      email: "ana@api.com",
-      password: "523",
-      role: "admin",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      save: jest.fn().mockRejectedValueOnce(new Error("Database error")),
+    bcrypt.hashSync.mockReturnValue('hashedPassword');
+    User.create.mockResolvedValue(mockUser);
+
+    await UsersController.createUser(req, resp, next);
+
+    expect(resp.status).toHaveBeenCalledWith(201);
+    expect(resp.json).toHaveBeenCalledWith(mockUser);
+    expect(bcrypt.hashSync).toHaveBeenCalledWith('password', 10);
+    expect(User.create).toHaveBeenCalledWith({
+      email: req.body.email,
+      password: 'hashedPassword',
+      role: req.body.role,
     });
-
-    await users.updateUser(mockReq, mockResp, mockNext);
-
-    expect(mockNext).toHaveBeenCalledWith({ status: 500, message: "Erro interno do servidor." });
+    expect(next).not.toHaveBeenCalled();
   });
 
+  it('should handle missing fields', async () => {
+    const req = { body: { email: 'user@example.com' } };
+    const resp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+
+    await UsersController.createUser(req, resp, next);
+
+    expect(resp.status).toHaveBeenCalledWith(400);
+    expect(resp.json).toHaveBeenCalledWith({ message: 'Todos os campos são obrigatórios.' });
+    expect(bcrypt.hashSync).not.toHaveBeenCalled();
+    expect(User.create).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should handle errors', async () => {
+    const mockError = new Error('Database error');
+    const req = { body: { email: 'user@example.com', password: 'password', role: 'user' } };
+    const resp = {};
+    const next = jest.fn();
+
+    bcrypt.hashSync.mockReturnValue('hashedPassword');
+    User.create.mockRejectedValue(mockError);
+
+    await UsersController.createUser(req, resp, next);
+
+    expect(next).toHaveBeenCalledWith({ status: 500, message: mockError.message });
+  });
+});
+
+describe('updateUser', () => {
+  it('should update a user', async () => {
+    const mockUser = { id: 1, email: 'user@example.com', role: 'user' };
+    const req = { params: { userId: 1 }, body: { email: 'updated@example.com', role: 'admin' } };
+    const resp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+
+    const mockFoundUser = { ...mockUser, save: jest.fn().mockResolvedValue(mockUser) };
+    User.findOne.mockResolvedValue(mockFoundUser);
+
+    bcrypt.hashSync.mockReturnValue('hashedPassword');
+
+    await UsersController.updateUser(req, resp, next);
+
+    expect(User.findOne).toHaveBeenCalledWith({ where: { id: req.params.userId } });
+    expect(mockFoundUser.email).toBe(req.body.email);
+    expect(mockFoundUser.password).toBe('hashedPassword');
+    expect(mockFoundUser.role).toBe(req.body.role);
+    expect(mockFoundUser.save).toHaveBeenCalled();
+    expect(resp.status).toHaveBeenCalledWith(200);
+    expect(resp.json).toHaveBeenCalledWith(mockUser);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should handle user not found', async () => {
+    User.findOne.mockResolvedValue(null);
+
+    const req = { params: { userId: 1 }, body: { email: 'updated@example.com', role: 'admin' } };
+    const resp = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+
+    await UsersController.updateUser(req, resp, next);
+
+    expect(User.findOne).toHaveBeenCalledWith({ where: { id: req.params.userId } });
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('should handle errors', async () => {
+    const mockError = new Error('Database error');
+    const req = { params: { userId: 1 }, body: { email: 'updated@example.com', role: 'admin' } };
+    const resp = {};
+    const next = jest.fn();
+
+    User.findOne.mockRejectedValue(mockError);
+
+    await UsersController.updateUser(req, resp, next);
+
+    expect(next).toHaveBeenCalledWith({ status: 500, message: mockError.message });
+  });
 });
 
 describe("deleteUser", () => {
