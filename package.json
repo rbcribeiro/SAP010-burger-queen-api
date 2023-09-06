@@ -15,7 +15,10 @@
     "lint": "eslint .",
     "docs:generate": "jsdoc -c jsdoc.conf --readme README-docs.md",
     "docs:deploy": "rm -rf docs && npm run docs:generate && gh-pages -d docs",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "prisma:generate": "npx prisma generate",
+    "vercel-build": "npx prisma migrate deploy"
+
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -24,11 +27,11 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^8.5.1",
-    "pg": "^8.11.2",
-    "pg-hstore": "^2.3.4",
-    "sequelize": "^6.32.1"
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4"
   },
   "devDependencies": {
+    "@prisma/client": "^5.2.0",
     "docdash": "^1.2.0",
     "eslint": "^8.3.0",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -39,6 +42,7 @@
     "jsdoc-http-plugin": "^0.3.2",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.0.1",
+    "prisma": "^5.2.0",
     "tree-kill": "^1.2.2"
   },
   "bootcamp": {

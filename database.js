@@ -1,8 +1,13 @@
-const { sequelize } = require('./config');
+const { prisma } = require('./config');
 
-sequelize
-  .authenticate()
-  .then(() => console.info('Conexão com o banco de dados bem-sucedida!'))
-  .catch((err) => console.error('Erro ao conectar com o banco de dados:', err));
+async function connectDatabase() {
+  try {
+    await prisma.$connect();
+    console.info('Conexão com o banco de dados bem-sucedida!');
+  } catch (error) {
+    console.error('Erro ao conectar com o banco de dados:', error);
+    throw error;
+  }
+}
 
-module.exports = sequelize;
+module.exports = connectDatabase;
