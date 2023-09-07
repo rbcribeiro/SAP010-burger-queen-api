@@ -1,9 +1,10 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+
 const { secret } = require('../../config');
 const { setGlobalToken } = require('../middleware/tokenStorage'); 
+
 
 module.exports = {
   postAuth: async (req, resp) => {

@@ -6,6 +6,10 @@
   "engines": {
     "node": ">=16.x"
   },
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "output": "generated/prisma-client"
+  },
   "scripts": {
     "pretest": "eslint .",
     "start": "node index.js",

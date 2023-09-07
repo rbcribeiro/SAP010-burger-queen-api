@@ -1,7 +1,4 @@
 require('dotenv').config();
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
 
 const dbConfig = {
   user: process.env.DB_USER,
@@ -26,5 +23,5 @@ module.exports = {
   secret,
   port,
   remoteUrl,
-  prisma, 
+
 };
