@@ -1,3 +1,6 @@
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
 module.exports = {
   getOrders: async (req, resp, next) => {
     try {

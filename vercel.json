@@ -4,6 +4,11 @@
       {
         "src": "index.js",
         "use": "@vercel/node"
+      },
+      {
+        "env": {
+          "SEED_COMMAND": "node prisma/seeds/seed-admin-user.js" 
+        }
       }
     ],
     "routes": [
@@ -12,13 +17,12 @@
         "dest": "index.js"
       }
     ],
+    "crons": [{
+      "path": "/cron",
+      "schedule": "0 10 * * *"
+    }],
     "env": {
       "SEED_COMMAND": "node prisma/seeds/seed-admin-user.js" 
-    },
-    "build": {
-      "env": {
-        "SEED_COMMAND": "node prisma/seeds/seed-admin-user.js" 
-      }
     }
   }
   
