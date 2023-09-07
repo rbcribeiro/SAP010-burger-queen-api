@@ -1,5 +1,5 @@
-const prisma = require('../../index'); 
-
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 module.exports = {
   getOrders: async (req, resp, next) => {
@@ -7,8 +7,17 @@ module.exports = {
       const orders = await prisma.order.findMany({
         include: {
           products: {
-            include: {
-              product: true,
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              image: true,
+              type: true,
+              OrderProducts: {
+                select: {
+                  quantity: true,
+                },
+              },
             },
           },
         },
@@ -23,14 +32,14 @@ module.exports = {
         ...(order.status === 'Concluído' && {
           dateProcessed: order.dateProcessed,
         }),
-        Products: order.products.map((orderProduct) => ({
-          id: orderProduct.product.id,
-          name: orderProduct.product.name,
-          price: orderProduct.product.price,
-          image: orderProduct.product.image,
-          type: orderProduct.product.type,
+        Products: order.products.map((product) => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          type: product.type,
           OrderProducts: {
-            quantity: orderProduct.quantity,
+            quantity: product.OrderProducts.quantity,
           },
         })),
       }));
@@ -45,11 +54,20 @@ module.exports = {
     try {
       const { orderId } = req.params;
       const order = await prisma.order.findUnique({
-        where: { id: parseInt(orderId) },
+        where: { id: orderId },
         include: {
           products: {
-            include: {
-              product: true,
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              image: true,
+              type: true,
+              OrderProducts: {
+                select: {
+                  quantity: true,
+                },
+              },
             },
           },
         },
@@ -68,14 +86,14 @@ module.exports = {
         ...(order.status === 'Concluído' && {
           dateProcessed: order.dateProcessed,
         }),
-        Products: order.products.map((orderProduct) => ({
-          id: orderProduct.product.id,
-          name: orderProduct.product.name,
-          price: orderProduct.product.price,
-          image: orderProduct.product.image,
-          type: orderProduct.product.type,
+        Products: order.products.map((product) => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          type: product.type,
           OrderProducts: {
-            quantity: orderProduct.quantity,
+            quantity: product.OrderProducts.quantity,
           },
         })),
       };
@@ -89,70 +107,123 @@ module.exports = {
   createOrder: async (req, resp, next) => {
     try {
       const { userId, client, products } = req.body;
-
+  
+      console.log('userId:', userId);
+      console.log('client:', client);
+      console.log('products:', products);
+  
       if (!userId || !client || !products || !products.length) {
         return resp
           .status(400)
           .json({ message: 'Dados incompletos na requisição.' });
       }
-
+  
       const existingUser = await prisma.user.findUnique({
-        where: { id: userId },
+        where: {
+          id: userId,
+        },
       });
-
+  
+      console.log('existingUser:', existingUser);
+  
       if (!existingUser) {
         return resp
           .status(404)
           .json({ message: `Usuário com ID ${userId} não encontrado.` });
       }
-
+  
       const order = await prisma.order.create({
         data: {
           userId,
           client,
           status: 'Pendente',
           dateEntry: new Date(),
-          products: {
-            createMany: {
-              data: products.map((productData) => ({
-                quantity: productData.qty,
-                product: {
-                  connect: { id: productData.product.id },
-                },
-              })),
-            },
+          // Adicione quaisquer outros campos necessários aqui.
+        },
+      });
+  
+      console.log('order:', order);
+  
+      const addProductPromises = products.map(async (productData) => {
+        const { qty, product } = productData;
+        const existingProduct = await prisma.product.findUnique({
+          where: {
+            id: product.id,
           },
+        });
+  
+        console.log('existingProduct:', existingProduct);
+  
+        if (!existingProduct) {
+          return resp
+            .status(404)
+            .json({ message: `Produto com ID ${product.id} não encontrado.` });
+        }
+  
+        await prisma.orderProduct.create({
+          data: {
+            orderId: order.id,
+            productId: existingProduct.id,
+            quantity: qty,
+          },
+        });
+      });
+  
+      console.log('addProductPromises:', addProductPromises);
+  
+      await Promise.all(addProductPromises);
+  
+      const orderWithProducts = await prisma.order.findUnique({
+        where: {
+          id: order.id,
         },
         include: {
           products: {
-            include: {
-              product: true,
+            select: {
+              id: true,
+              name: true,
+              // Inclua aqui os campos que deseja selecionar dos produtos.
+            },
+            through: {
+              select: {
+                quantity: true,
+              },
             },
           },
         },
+        select: {
+          id: true,
+          userId: true,
+          client: true,
+          status: true,
+          dateEntry: true,
+          dateProcessed: true,
+        },
       });
-
+  
+      console.log('orderWithProducts:', orderWithProducts);
+  
       const responseOrder = {
-        id: order.id,
-        userId: order.userId,
-        client: order.client,
-        status: order.status,
-        dateEntry: order.dateEntry,
-        Products: order.products.map((orderProduct) => ({
-          id: orderProduct.product.id,
-          name: orderProduct.product.name,
-          price: orderProduct.product.price,
-          image: orderProduct.product.image,
-          type: orderProduct.product.type,
-          OrderProducts: {
-            quantity: orderProduct.quantity,
-          },
-        })),
+        id: orderWithProducts.id,
+        userId: orderWithProducts.userId,
+        client: orderWithProducts.client,
+        status: orderWithProducts.status,
+        dateEntry: orderWithProducts.dateEntry,
+        Products: orderWithProducts.products,
       };
-
-      resp.status(201).json(responseOrder);
+  
+      console.log('responseOrder:', responseOrder);
+  
+      if (orderWithProducts.dateProcessed !== null) {
+        responseOrder.dateProcessed = orderWithProducts.dateProcessed;
+      }
+  
+      return resp.status(201).json(responseOrder);
     } catch (error) {
+      console.error('Erro:', error);
       next(error);
+    } finally {
+      await prisma.$disconnect();
     }
   },
 
@@ -166,23 +237,16 @@ module.exports = {
       if (!allowedStatusValues.includes(status)) {
         return resp.status(400).json({
           message: `O valor do campo status deve ser um dos seguintes: ${allowedStatusValues.join(
-            ', '
+            ', ',
           )}`,
         });
       }
 
       const order = await prisma.order.update({
-        where: { id: parseInt(orderId) },
+        where: { id: orderId },
         data: {
           status,
           dateProcessed: status === 'Concluído' ? new Date() : null,
-        },
-        include: {
-          products: {
-            include: {
-              product: true,
-            },
-          },
         },
       });
 
@@ -193,16 +257,6 @@ module.exports = {
         status: order.status,
         dateEntry: order.dateEntry,
         dateProcessed: order.dateProcessed,
-        Products: order.products.map((orderProduct) => ({
-          id: orderProduct.product.id,
-          name: orderProduct.product.name,
-          price: orderProduct.product.price,
-          image: orderProduct.product.image,
-          type: orderProduct.product.type,
-          OrderProducts: {
-            quantity: orderProduct.quantity,
-          },
-        })),
       };
 
       resp.status(200).json(responseOrder);
@@ -214,9 +268,8 @@ module.exports = {
   deleteOrder: async (req, resp, next) => {
     try {
       const { orderId } = req.params;
-
       await prisma.order.delete({
-        where: { id: parseInt(orderId) },
+        where: { id: orderId },
       });
 
       resp.status(200).json({ message: 'Ordem excluída com sucesso!' });

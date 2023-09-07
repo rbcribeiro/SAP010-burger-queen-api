@@ -14,7 +14,7 @@ model Product {
   price Float
   image String?
   type  String?
-  orders OrderProducts[]  // Adicione esta linha
+  orders OrderProducts[]  
  }
 
 model User {
@@ -23,16 +23,17 @@ model User {
   email    String  @unique
   password String
   role     String
+  orders   Order[] 
 }
 
 model Order {
-  id            Int       @id @default(autoincrement())
-  userId        Int
-  client        String
-  status        OrderStatus
-  dateEntry     DateTime
-  dateProcessed DateTime?
-  products      OrderProducts[]  // Adicione esta linha
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  client   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+  products OrderProducts[]
+  user     User     @relation(fields: [userId], references: [id])
 }
 
 enum OrderStatus {
@@ -42,10 +43,10 @@ enum OrderStatus {
 }
 
 model OrderProducts {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   orderId    Int
   productId  Int
-  quantity   Int
-  order      Order     @relation(fields: [orderId], references: [id])
-  product    Product   @relation(fields: [productId], references: [id])
+  qty        Int
+  product    Product  @relation(fields: [productId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
 }
