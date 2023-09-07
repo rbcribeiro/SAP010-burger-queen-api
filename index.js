@@ -22,6 +22,7 @@ const corsOptions = {
   credentials: true, 
 };
 
+
 app.use(cors(corsOptions));
 
 routes(app, (err) => {
