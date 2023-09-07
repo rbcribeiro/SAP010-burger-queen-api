@@ -8,44 +8,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Product {
+model products {
   id    Int      @id @default(autoincrement())
   name  String
   price Float
   image String?
   type  String?
-  orders OrderProducts[]  
- }
+  orders orders_products[]
+}
 
-model User {
+model users {
   id       Int     @id @default(autoincrement())
   name     String
   email    String  @unique
   password String
   role     String
+  orders   orders[] 
 }
 
-model Order {
+model orders {
   id       Int      @id @default(autoincrement())
   userId   Int
   client   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  products OrderProducts[]
-  user     User     @relation(fields: [userId], references: [id])
+  products orders_products[]
+  users     users     @relation(fields: [userId], references: [id])
 }
 
-enum OrderStatus {
+enum orders_status {
   Pendente
   Processando
   Concluido
 }
 
-model OrderProducts {
+model orders_products {
   id         Int      @id @default(autoincrement())
   orderId    Int
   productId  Int
   qty        Int
-  product    Product  @relation(fields: [productId], references: [id])
-  order      Order    @relation(fields: [orderId], references: [id])
+  products    products  @relation(fields: [productId], references: [id])
+  orders      orders    @relation(fields: [orderId], references: [id])
 }

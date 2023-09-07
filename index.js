@@ -27,9 +27,9 @@ const prisma = new PrismaClient();
 const checkDatabaseConnection = async () => {
   try {
     await prisma.$connect();
-    console.log('Conectado ao banco de dados Prisma');
+    console.log('Conectado ao banco de dados');
   } catch (error) {
-    console.error('Erro ao conectar ao banco de dados Prisma:', error);
+    console.error('Erro ao conectar ao banco de dados', error);
   }
 };
 
