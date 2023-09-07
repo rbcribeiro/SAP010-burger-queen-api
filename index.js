@@ -37,16 +37,16 @@ routes(app, (err) => {
 });
 
 
-// async function testPrismaConnection() {
-//   try {
-//     await prisma.$connect();
-//     console.log('Conexão com o banco de dados estabelecida com sucesso.');
-//   } catch (error) {
-//     console.error('Erro ao conectar ao banco de dados:', error);
-//   } finally {
-//     await prisma.$disconnect();
-//   }
-// }
-// testPrismaConnection();
+async function testPrismaConnection() {
+  try {
+    await prisma.$connect();
+    console.log('Conexão com o banco de dados estabelecida com sucesso.');
+  } catch (error) {
+    console.error('Erro ao conectar ao banco de dados:', error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+testPrismaConnection();
 
 
