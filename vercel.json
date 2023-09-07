@@ -4,10 +4,6 @@
       {
         "src": "index.js",
         "use": "@vercel/node"
-      },
-      {
-        "use": "prisma/seeds/seed-admin-user.js",  
-        "config": { "zeroConfig": true }
       }
     ],
     "routes": [
@@ -15,6 +11,14 @@
         "src": "(.*)",
         "dest": "index.js"
       }
-    ]
+    ],
+    "env": {
+      "SEED_COMMAND": "node prisma/seeds/seed-admin-user.js" 
+    },
+    "build": {
+      "env": {
+        "SEED_COMMAND": "node prisma/seeds/seed-admin-user.js" 
+      }
+    }
   }
   
