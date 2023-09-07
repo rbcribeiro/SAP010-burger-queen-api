@@ -2,21 +2,21 @@ const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
-const saltRounds = 10; // Defina o número de salt rounds desejado
+const saltRounds = 10; 
 
 async function seedData() {
   try {
-    const existingUser = await prisma.user.findUnique({
-      where: { email: "admin@admin" },
+    const existingUser = await prisma.users.findFirst({
+      where: { email: "admin@admin.com" },
     });
 
     if (!existingUser) {
       const plaintextPassword = "admin";
       const hashedPassword = await bcrypt.hash(plaintextPassword, saltRounds);
-      await prisma.user.create({
+      await prisma.users.create({
         data: {
-          name: "Renata",
-          email: "admin@api.com",
+          name: "Renata Ribeiro",
+          email: "admin@admin.com",
           password: hashedPassword,
           role: "admin",
         },
@@ -25,7 +25,7 @@ async function seedData() {
       console.log("Dados de seed inseridos com sucesso.");
     } else {
       console.log(
-        'O usuário com o email "admin@admin" já existe. Nenhum dado de seed inserido.'
+        'O usuário com o email "admin@admin.com" já existe. Nenhum dado de seed inserido.'
       );
     }
   } catch (error) {
