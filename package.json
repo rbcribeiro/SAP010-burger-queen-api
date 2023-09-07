@@ -21,7 +21,7 @@
     "docs:deploy": "rm -rf docs && npm run docs:generate && gh-pages -d docs",
     "dev": "nodemon index.js",
     "prisma:generate": "npx prisma generate",
-    "vercel-build": "npx prisma migrate deploy",
+    "vercel-build": " prisma generate && npm install && npx prisma migrate deploy ",
     "migrate": "npm run migrate-and-seed",
     "seed": "node prisma/seeds/seed-admin-user.js",
     "migrate-and-seed": "npx prisma migrate dev && npm run seed"
